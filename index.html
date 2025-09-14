@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Percetakan - Halaman Utama</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .hero {
+            text-align: center;
+            padding: 2rem;
+            max-width: 800px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1-px rgba(0, 0, 0, 0.06);
+            padding: 2rem;
+            margin-top: 2rem;
+            width: 100%;
+            max-width: 600px;
+        }
+        .btn {
+            border-radius: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+        }
+        .input-field {
+            border-radius: 0.5rem;
+        }
+        .dashboard-container {
+            min-height: 100vh;
+            display: none;
+            flex-direction: column;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: white;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        .nav-item {
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+            font-weight: 600;
+            text-align: left;
+        }
+        .nav-item.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .nav-item:hover:not(.active) {
+            background-color: #e5e7eb;
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+        .action-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Halaman Landing & Unggah File -->
+    <div id="landingPage" class="main-container">
+        <div class="hero">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">Selamat Datang di Toko Percetakan Kami</h1>
+            <p class="mt-4 text-lg md:text-xl text-gray-600">Unggah file Anda dan kami akan mengurus sisanya.</p>
+        </div>
+
+        <div class="card p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Unggah File Pesanan Anda</h2>
+            <form id="uploadForm">
+                <div class="mb-4">
+                    <label for="customerName" class="block text-gray-700 font-medium mb-1">Nama Lengkap</label>
+                    <input type="text" id="customerName" class="input-field w-full p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Masukkan nama Anda" required>
+                </div>
+                <div class="mb-4">
+                    <label for="customerPhone" class="block text-gray-700 font-medium mb-1">Nomor WhatsApp</label>
+                    <input type="tel" id="customerPhone" class="input-field w-full p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contoh: 6281234567890" required>
+                </div>
+                <div class="mb-4">
+                    <label for="fileInput" class="block text-gray-700 font-medium mb-1">Pilih File</label>
+                    <input type="file" id="fileInput" class="w-full p-2 border border-gray-300 rounded-lg" required>
+                </div>
+                <button type="submit" class="btn bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-300 w-full">
+                    Unggah Pesanan
+                </button>
+            </form>
+        </div>
+
+        <div class="mt-8 text-center">
+            <button id="showLoginBtn" class="text-blue-600 hover:underline">Tim kami? Klik untuk masuk.</button>
+        </div>
+    </div>
+
+    <!-- Modal Login Tim -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-2xl font-bold mb-4">Login Tim</h2>
+            <form id="loginForm">
+                <div class="mb-4">
+                    <label for="loginEmail" class="block text-gray-700 font-medium mb-1 text-left">Email</label>
+                    <input type="email" id="loginEmail" class="input-field w-full p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="loginPassword" class="block text-gray-700 font-medium mb-1 text-left">Kata Sandi</label>
+                    <input type="password" id="loginPassword" class="input-field w-full p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <button type="submit" class="btn bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-300 w-full mb-2">Masuk</button>
+            </form>
+            <button id="closeLoginModalBtn" class="btn bg-gray-400 text-white hover:bg-gray-500 w-full">Batal</button>
+        </div>
+    </div>
+
+    <!-- Dashboard Tim -->
+    <div id="dashboard" class="dashboard-container">
+        <!-- Sidebar Dashboard -->
+        <aside class="sidebar">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
+            <div class="space-y-4">
+                <button id="navOrders" class="nav-item active w-full">Pesanan Masuk</button>
+                <button id="navReports" class="nav-item w-full">Laporan</button>
+            </div>
+            <div class="mt-auto">
+                <button id="logoutBtn" class="nav-item bg-red-500 text-white w-full hover:bg-red-600">Keluar</button>
+            </div>
+        </aside>
+
+        <!-- Konten Utama Dashboard -->
+        <main class="main-content">
+            <h1 id="dashboardTitle" class="text-3xl font-bold text-gray-800 mb-6">Pesanan Masuk</h1>
+            
+            <div id="ordersSection" class="section active">
+                <div class="card p-6">
+                    <h2 class="text-2xl font-bold mb-4">Daftar Pesanan</h2>
+                    <div id="ordersList" class="space-y-4">
+                        <p class="text-center text-gray-500">Tidak ada pesanan.</p>
+                        <!-- Pesanan akan dimuat di sini secara dinamis -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="reportsSection" class="section">
+                <div class="card p-6">
+                    <h2 class="text-2xl font-bold mb-4">Laporan & Statistik</h2>
+                    <p class="text-gray-600">Laporan penjualan akan ditampilkan di sini.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://rgrajbbfleqvtsavrmcp.supabase.co';
+        
+        // ======================================================================
+        // PENTING: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJncmFqYmJmbGVxdnRzYXZybWNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk4NDYsImV4cCI6MjA3MDA1NTg0Nn0.3ihKh6zniO2hmFLB6A27H3KoeKzgUpguw2P0ofalG1k
+        // Jika Anda melihat kesalahan, pastikan URL dan kunci Anda sudah benar.
+        // ======================================================================
+        const supabaseUrl = 'URL_PROYEK_ANDA';
+        const supabaseKey = 'KUNCI_ANON_ANDA';
+
+        let supabase = null;
+        let landingPage, dashboard, showLoginBtn, loginModal, loginForm, closeLoginModalBtn, uploadForm, logoutBtn, navOrders, navReports, ordersSection, reportsSection, dashboardTitle, ordersList;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            landingPage = document.getElementById('landingPage');
+            dashboard = document.getElementById('dashboard');
+            showLoginBtn = document.getElementById('showLoginBtn');
+            loginModal = document.getElementById('loginModal');
+            loginForm = document.getElementById('loginForm');
+            closeLoginModalBtn = document.getElementById('closeLoginModalBtn');
+            uploadForm = document.getElementById('uploadForm');
+            logoutBtn = document.getElementById('logoutBtn');
+            navOrders = document.getElementById('navOrders');
+            navReports = document.getElementById('navReports');
+            ordersSection = document.getElementById('ordersSection');
+            reportsSection = document.getElementById('reportsSection');
+            dashboardTitle = document.getElementById('dashboardTitle');
+            ordersList = document.getElementById('ordersList');
+
+            if (supabaseUrl === 'URL_PROYEK_ANDA' || supabaseKey === 'KUNCI_ANON_ANDA') {
+                document.getElementById('landingPage').innerHTML = `
+                    <div class="card p-6 text-center">
+                        <h2 class="text-2xl font-bold text-red-600 mb-4">Kesalahan Koneksi Database</h2>
+                        <p class="text-gray-600">Mohon periksa kode Anda. Anda perlu mengganti nilai 'URL_PROYEK_ANDA' dan 'KUNCI_ANON_ANDA' dengan kredensial Supabase asli Anda.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                supabase = createClient(supabaseUrl, supabaseKey);
+                setupEventListeners();
+                console.log("Supabase berhasil diinisialisasi.");
+            } catch (error) {
+                console.error("Gagal menginisialisasi Supabase:", error.message);
+            }
+        });
+
+        function setupEventListeners() {
+            // Menampilkan atau menyembunyikan modal login
+            showLoginBtn.addEventListener('click', () => {
+                loginModal.style.display = 'flex';
+            });
+            closeLoginModalBtn.addEventListener('click', () => {
+                loginModal.style.display = 'none';
+            });
+
+            // Logika autentikasi (konseptual)
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+
+                if (!supabase) {
+                    alert("Database tidak terhubung.");
+                    return;
+                }
+
+                const { user, error } = await supabase.auth.signInWithPassword({ email, password });
+                
+                if (error) {
+                    console.error("Login gagal:", error.message);
+                    alert("Login gagal: " + error.message);
+                } else {
+                    console.log("Login berhasil!", user);
+                    loginModal.style.display = 'none';
+                    landingPage.style.display = 'none';
+                    dashboard.style.display = 'flex';
+                    loadOrders(); // Muat data setelah login
+                }
+            });
+
+            logoutBtn.addEventListener('click', async () => {
+                const { error } = await supabase.auth.signOut();
+                if (error) {
+                    console.error("Logout gagal:", error.message);
+                } else {
+                    landingPage.style.display = 'flex';
+                    dashboard.style.display = 'none';
+                }
+            });
+
+            // Unggah File (konseptual)
+            uploadForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const customerName = document.getElementById('customerName').value;
+                const customerPhone = document.getElementById('customerPhone').value;
+                const fileInput = document.getElementById('fileInput').files[0];
+
+                if (!fileInput) {
+                    alert("Mohon pilih file terlebih dahulu.");
+                    return;
+                }
+                if (!supabase) {
+                    alert("Database tidak terhubung.");
+                    return;
+                }
+
+                // Logika unggah file ke Supabase Storage dan penyimpanan data pesanan di sini
+                // CATATAN: Ini harus dilakukan di backend untuk keamanan yang lebih baik
+                alert("Pesanan Anda telah diunggah! Mohon tunggu notifikasi WhatsApp.");
+                console.log("Mengunggah file untuk:", customerName, customerPhone);
+                
+                // Logika pengiriman notifikasi WhatsApp (memerlukan API backend)
+                // LAKUKAN INI DI SERVER!
+                // fetch('/api/send-whatsapp', { method: 'POST', body: JSON.stringify({ phone: customerPhone, message: '...' }) });
+
+                uploadForm.reset();
+            });
+
+            // Navigasi Dashboard
+            navOrders.addEventListener('click', () => {
+                ordersSection.style.display = 'block';
+                reportsSection.style.display = 'none';
+                dashboardTitle.innerText = 'Pesanan Masuk';
+                navOrders.classList.add('active');
+                navReports.classList.remove('active');
+                loadOrders();
+            });
+            navReports.addEventListener('click', () => {
+                ordersSection.style.display = 'none';
+                reportsSection.style.display = 'block';
+                dashboardTitle.innerText = 'Laporan';
+                navReports.classList.add('active');
+                navOrders.classList.remove('active');
+                // Logika memuat laporan di sini
+            });
+
+            // Panggil fungsi untuk memuat pesanan saat dashboard ditampilkan
+            if (dashboard.style.display === 'flex') {
+                loadOrders();
+            }
+        }
+
+        // Fungsi untuk memuat data pesanan
+        async function loadOrders() {
+            ordersList.innerHTML = '<p class="text-center text-gray-500">Memuat pesanan...</p>';
+            
+            if (!supabase) {
+                ordersList.innerHTML = '<p class="text-center text-red-500">Gagal memuat data. Database tidak terhubung.</p>';
+                return;
+            }
+            
+            const { data: orders, error } = await supabase.from('sales_transactions').select('*');
+
+            if (error) {
+                console.error("Gagal memuat pesanan:", error.message);
+                ordersList.innerHTML = '<p class="text-center text-red-500">Gagal memuat data. Periksa koneksi atau izin.</p>';
+            } else {
+                if (orders.length === 0) {
+                    ordersList.innerHTML = '<p class="text-center text-gray-500">Tidak ada pesanan.</p>';
+                } else {
+                    ordersList.innerHTML = '';
+                    orders.forEach(order => {
+                        const orderItem = document.createElement('div');
+                        orderItem.className = 'card p-4 flex flex-col md:flex-row justify-between items-start md:items-center border border-gray-200';
+                        orderItem.innerHTML = `
+                            <div>
+                                <p class="font-bold text-lg text-gray-900">Pesanan #${order.id.substring(0, 8)}</p>
+                                <p class="text-gray-600">Pelanggan: ${order.customer_id}</p>
+                                <p class="text-sm text-gray-500">Total: Rp ${order.subtotal}</p>
+                            </div>
+                            <div class="mt-2 md:mt-0">
+                                <button class="action-btn bg-blue-500 text-white hover:bg-blue-600">Lihat Detail</button>
+                            </div>
+                        `;
+                        ordersList.appendChild(orderItem);
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
