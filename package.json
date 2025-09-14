@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@whiskeysockets/baileys": "^7.0.0-rc.2",
+    "axios": "^1.12.2",
+    "express": "^5.1.0",
+    "pino": "^9.9.5",
+    "qrcode": "^1.5.4"
+  }
+}
