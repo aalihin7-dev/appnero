@@ -1,82 +1,105 @@
 const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
-const pino = require('pino');
 const express = require('express');
-const cors = require('cors');
 const qrcode = require('qrcode-terminal');
-const path = require('path');
+const pino = require('pino');
+const cors = require('cors'); // Tambahkan library CORS
 
 const app = express();
-const PORT = 3000;
+const port = 3000;
+const host = '0.0.0.0'; // --- PERUBAHAN PENTING ---
 
-app.use(cors());
+// Middleware
 app.use(express.json());
+app.use(cors()); // --- TAMBAHAN PENTING: Mengizinkan koneksi dari domain lain ---
 
-// PENTING: GANTI DENGAN PATH ASLI KE FILE HTML ANDA
-app.use(express.static(path.join(__dirname, '..')));
-
-// Logging untuk koneksi WhatsApp
-const logger = pino({ level: 'info' });
+let sock = null;
 
 async function connectToWhatsApp() {
-    const { state, saveCreds } = await useMultiFileAuthState('baileys_auth_info');
+    const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
     
-    const sock = makeWASocket({
-        auth: state,
-        logger,
+    sock = makeWASocket({
+        logger: pino({ level: 'silent' }),
         printQRInTerminal: true,
-        browser: ['Aplikasi Percetakan', 'Safari', '1.0'],
+        auth: state,
     });
 
     sock.ev.on('connection.update', (update) => {
         const { connection, lastDisconnect, qr } = update;
-        if (qr) {
-            console.log("Scan QR code berikut:");
+        if(qr) {
+            console.log("QR Code diterima, silakan pindai:");
             qrcode.generate(qr, { small: true });
         }
-        if (connection === 'close') {
+        if(connection === 'close') {
             const shouldReconnect = (lastDisconnect.error)?.output?.statusCode !== DisconnectReason.loggedOut;
-            console.log('Koneksi ditutup. Alasan:', lastDisconnect.error, 'Menghubungkan kembali:', shouldReconnect);
-            if (shouldReconnect) {
+            console.log('Koneksi terputus karena ', lastDisconnect.error, ', mencoba menghubungkan kembali: ', shouldReconnect);
+            if(shouldReconnect) {
                 connectToWhatsApp();
             }
-        } else if (connection === 'open') {
+        } else if(connection === 'open') {
             console.log('Koneksi WhatsApp berhasil dibuka!');
         }
     });
 
     sock.ev.on('creds.update', saveCreds);
-
-    return sock;
 }
 
-let sock;
-connectToWhatsApp().then(socket => {
-    sock = socket;
-}).catch(err => {
-    console.error("Gagal terhubung ke WhatsApp:", err);
-});
+app.post('/send-notification', async (req, res) => {
+    const { name, phone, fileName } = req.body;
+    const teamPhoneNumber = '6281272658090'; // Ganti dengan nomor WA tim Anda
 
-// Endpoint untuk mengirim pesan WhatsApp
-app.post('/api/send-whatsapp', async (req, res) => {
-    const { phone, name } = req.body;
-    
-    // Periksa apakah socket terhubung sebelum mengirim pesan
-    if (!sock || !sock.user) {
-        return res.status(503).json({ status: 'error', message: 'WhatsApp tidak terhubung.' });
+    if (!sock) {
+        return res.status(500).json({ success: false, message: 'Koneksi WhatsApp belum siap.' });
     }
 
     try {
-        const message = `Halo ${name},\n\nTerima kasih telah memesan. Pesanan Anda telah kami terima dan akan segera diproses.`;
-        const jid = `${phone}@s.whatsapp.net`;
-        await sock.sendMessage(jid, { text: message });
-        console.log(`Pesan terkirim ke ${phone}`);
-        res.json({ status: 'success', message: 'Pesan berhasil dikirim!' });
-    } catch (e) {
-        console.error("Gagal mengirim pesan:", e);
-        res.status(500).json({ status: 'error', message: 'Gagal mengirim pesan.' });
+        const message = `🔔 *Pesanan Baru Masuk!*\n\n*Nama Pelanggan:* ${name}\n*No. WhatsApp:* ${phone}\n*Nama File:* ${fileName}\n\nMohon segera diproses.`;
+        await sock.sendMessage(teamPhoneNumber + '@s.whatsapp.net', { text: message });
+        console.log(`Notifikasi terkirim ke ${teamPhoneNumber}`);
+        res.status(200).json({ success: true, message: 'Notifikasi berhasil dikirim.' });
+    } catch (error) {
+        console.error('Gagal mengirim notifikasi:', error);
+        res.status(500).json({ success: false, message: 'Gagal mengirim notifikasi.' });
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server berjalan di http://localhost:${PORT}`);
+app.listen(port, host, () => { // --- PERUBAHAN PENTING ---
+    console.log(`Server notifikasi berjalan di http://${host}:${port}`);
+    connectToWhatsApp();
 });
+```
+
+### Cara Memperbarui File di VPS (Langkah-langkah)
+
+1.  **Hubungkan ke VPS Anda** melalui SSH.
+
+2.  **Masuk ke folder proyek:**
+    ```bash
+    cd appnero
+    ```
+
+3.  **Install `cors`:** Kita menambahkan library baru, jadi perlu di-install.
+    ```bash
+    npm install cors
+    ```
+
+4.  **Buka file `index.js` dengan editor teks `nano`:**
+    ```bash
+    nano index.js
+    ```
+
+5.  **Ganti Kode:**
+    * Jendela editor `nano` akan terbuka, menampilkan kode lama Anda.
+    * Hapus semua kode lama (Anda bisa menggunakan `Ctrl + K` berulang kali).
+    * Salin **seluruh isi kode** dari Canvas `Perbaikan Server Notifikasi (VPS)` di atas.
+    * Tempelkan ke dalam jendela `nano` (biasanya dengan klik kanan mouse).
+
+6.  **Simpan dan Keluar:**
+    * Tekan `Ctrl + X`.
+    * Terminal akan bertanya "Save modified buffer?". Ketik `Y` lalu tekan Enter.
+    * Terminal akan bertanya "File Name to Write: index.js". Tekan Enter lagi.
+
+7.  **Restart Server dengan PM2:**
+    Perintah ini akan memuat ulang server Anda dengan kode yang baru.
+    ```bash
+    pm2 restart notif-whatsapp
+    
