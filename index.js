@@ -1,73 +1,67 @@
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, Browsers } = require('@whiskeysockets/baileys');
 const express = require('express');
-const qrcode = require('qrcode-terminal');
-const pino = require('pino');
-const cors = require('cors');
+// const cors = require('cors'); // Dihapus karena sudah ditangani oleh Nginx
 
+// Gunakan fetch bawaan Node.js untuk membuat permintaan HTTP
 const app = express();
 const port = 3000;
 const host = '0.0.0.0';
 
+// =================== PENGATURAN WATI ANDA ===================
+const WATI_API_ENDPOINT = 'https://live-mt-server.wati.io/1020967/api/v1/sendTemplateMessage';
+const WATI_ACCESS_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlNjk2MTkyYS1mMWEyLTQyMDQtYmRiYy1jMGU5ZTIxZjA4YWYiLCJ1bmlxdWVfbmFtZSI6ImFhbGloaW43QGdtYWlsLmNvbSIsIm5hbWVpZCI6ImFhbGloaW43QGdtYWlsLmNvbSIsImVtYWlsIjoiYWFsaWhpbjdAZ21haWwuY29tIiwiYXV0aF90aW1lIjoiMDkvMTMvMjAyNSAxODo0MDo0MyIsInRlbmFudF9pZCI6IjEwMjA5NjciLCJkYl9uYW1lIjoibXQtcHJvZC1UZW5hbnRzIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiQURNSU5JU1RSQVRPUiIsImV4cCI6MjUzNDAyMzAwODAwLCJpc3MiOiJDbGFyZV9BSSIsImF1ZCI6IkNsYXJlX0FJIn0.fr24fRGKgx68tYs3Rmv4P_FRQTVHJDHWGLJD8d1gNLE';
+const WATI_TEMPLATE_NAME = 'notif_order';
+// ==========================================================
+
 // Middleware
 app.use(express.json());
-app.use(cors());
+// app.use(cors()); // Dihapus karena sudah ditangani oleh Nginx
 
-let sock = null;
-
-async function connectToWhatsApp() {
-    const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
-    
-    sock = makeWASocket({
-        logger: pino({ level: 'silent' }),
-        auth: state,
-        browser: Browsers.ubuntu('Chrome'), // Menyamarkan sebagai browser Chrome di Ubuntu
-    });
-
-    sock.ev.on('connection.update', (update) => {
-        const { connection, lastDisconnect, qr } = update;
-        if(qr) {
-            console.log("------------------------------------------------");
-            console.log("       pindai QR code ini dengan WhatsApp      ");
-            console.log("------------------------------------------------");
-            qrcode.generate(qr, { small: true });
-        }
-        if(connection === 'close') {
-            const shouldReconnect = (lastDisconnect.error)?.output?.statusCode !== DisconnectReason.loggedOut;
-            console.log('Koneksi terputus: ', lastDisconnect.error, ', mencoba menghubungkan kembali: ', shouldReconnect);
-            if(shouldReconnect) {
-                connectToWhatsApp();
-            }
-        } else if(connection === 'open') {
-            console.log('✅ Koneksi WhatsApp berhasil dibuka!');
-        }
-    });
-
-    sock.ev.on('creds.update', saveCreds);
-}
 
 app.post('/send-notification', async (req, res) => {
     const { name, phone, fileName } = req.body;
-    // Ganti dengan nomor WA tim Anda, diawali dengan 62
-    const teamPhoneNumber = '6281272658090'; 
+    const teamPhoneNumber = '15558749784'; 
 
-    if (!sock || sock.ws.readyState !== 1) { // Periksa apakah koneksi benar-benar terbuka
-        console.error('Koneksi WhatsApp belum siap atau terputus.');
-        return res.status(503).json({ success: false, message: 'Layanan notifikasi sedang tidak tersedia. Coba lagi nanti.' });
-    }
+    // Menyiapkan data untuk dikirim ke WATI API
+    const requestBody = {
+        template_name: WATI_TEMPLATE_NAME,
+        broadcast_name: `order_${Date.now()}`,
+        parameters: [
+            { name: 'name', value: name },
+            { name: 'phone', value: phone },
+            { name: 'fileName', value: fileName }
+        ]
+    };
 
     try {
-        const message = `🔔 *Pesanan Baru Masuk!*\n\n*Nama Pelanggan:* ${name}\n*No. WhatsApp:* ${phone}\n*Nama File:* ${fileName}\n\nMohon segera diproses.`;
-        await sock.sendMessage(teamPhoneNumber + '@s.whatsapp.net', { text: message });
-        console.log(`Notifikasi terkirim ke ${teamPhoneNumber}`);
+        const watiUrl = `${WATI_API_ENDPOINT}?whatsappNumber=${teamPhoneNumber}`;
+        
+        const response = await fetch(watiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${WATI_ACCESS_TOKEN}`
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+            console.error('Error dari WATI API:', responseData);
+            throw new Error(responseData.message || `Gagal mengirim notifikasi, status: ${response.status}`);
+        }
+
+        console.log(`Notifikasi berhasil dikirim ke ${teamPhoneNumber} melalui WATI.`);
         res.status(200).json({ success: true, message: 'Notifikasi berhasil dikirim.' });
+
     } catch (error) {
-        console.error('Gagal mengirim notifikasi:', error);
+        console.error('Gagal menghubungi WATI API:', error.message);
         res.status(500).json({ success: false, message: 'Gagal mengirim notifikasi.' });
     }
 });
 
+
 app.listen(port, host, () => {
-    console.log(`🚀 Server notifikasi berjalan di http://${host}:${port}`);
-    connectToWhatsApp();
+    console.log(`🚀 Server notifikasi WATI berjalan di http://${host}:${port}`);
 });
 
