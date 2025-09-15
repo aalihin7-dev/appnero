@@ -1,687 +1,87 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Percetakan - Halaman Utama</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            transition: background-color 0.3s, color 0.3s;
-            background-color: #f3f4f6;
-            color: #1f2937;
-        }
-        .main-container {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .hero {
-            text-align: center;
-            padding: 2rem;
-            max-width: 800px;
-        }
-        .card {
-            background-color: white;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            margin-top: 1rem;
-            width: 100%;
-        }
-        .btn {
-            border-radius: 0.75rem;
-            padding: 0.75rem 1.5rem;
-            font-weight: 600;
-            transition: all 0.2s ease-in-out;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        .input-field {
-            border-radius: 0.5rem;
-        }
-        .dashboard-container {
-            min-height: 100vh;
-            display: none; /* Initially hidden */
-            flex-direction: row; /* Changed to row for sidebar layout */
-        }
-        /* --- PERUBAHAN SIDEBAR --- */
-        .sidebar {
-            width: 280px;
-            background-color: #166534; /* Hijau Tua */
-            color: #ffffff; /* Tulisan Putih */
-            padding: 1.5rem;
-            box-shadow: 2px 0 5px -1px rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-        }
-        .main-content {
-            flex-grow: 1;
-            padding: 2rem;
-            overflow-y: auto;
-            background-color: #f9fafb;
-        }
-        .nav-item {
-            cursor: pointer;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            transition: all 0.2s;
-            font-weight: 600;
-            text-align: left;
-            border: 2px solid transparent;
-        }
-        .nav-item.active {
-            background-color: #22c55e; /* Hijau Terang untuk item aktif */
-            color: white;
-        }
-        .nav-item:hover:not(.active) {
-            background-color: rgba(255, 255, 255, 0.1); /* Efek hover di sidebar */
-        }
-        #logoutBtn {
-            background-color: transparent;
-            border: 2px solid #ef4444;
-            color: #ef4444;
-        }
-        #logoutBtn:hover {
-            background-color: #ef4444;
-            color: white;
-        }
-        /* --- AKHIR PERUBAHAN SIDEBAR --- */
-        .section {
-            display: none;
-        }
-        .section.active {
-            display: block;
-        }
-        .action-btn {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            border-radius: 0.5rem;
-            font-weight: 500;
-            transition: background-color 0.2s;
-        }
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: #fff;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-        }
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #28a745;
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            z-index: 2000;
-            opacity: 0;
-            transition: opacity 0.3s, transform 0.3s;
-        }
-        .toast.show {
-            opacity: 1;
-            transform: translate(-50%, -10px);
-        }
-        .toast.error {
-            background-color: #dc3545;
-        }
-    </style>
-</head>
-<body>
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, Browsers } = require('@whiskeysockets/baileys');
+const express = require('express');
+const qrcode = require('qrcode-terminal');
+const pino = require('pino');
+const cors = require('cors');
 
-    <!-- Halaman Landing & Unggah File -->
-    <div id="landingPage" class="main-container p-4">
-        <!-- ... Konten landing page tetap sama ... -->
-        <div class="hero">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">Selamat Datang di Toko Percetakan Kami</h1>
-            <p class="mt-4 text-lg md:text-xl text-gray-600">Unggah file Anda dan kami akan mengurus sisanya.</p>
-        </div>
-        <div class="card p-6 w-full max-w-lg">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Unggah File Pesanan Anda</h2>
-            <form id="uploadForm">
-                <div class="mb-4">
-                    <label for="customerName" class="block text-gray-700 font-medium mb-1">Nama Lengkap</label>
-                    <input type="text" id="customerName" class="input-field w-full p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Masukkan nama Anda" required>
-                </div>
-                <div class="mb-4">
-                    <label for="customerPhone" class="block text-gray-700 font-medium mb-1">Nomor WhatsApp</label>
-                    <input type="tel" id="customerPhone" class="input-field w-full p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contoh: 6281234567890" required>
-                </div>
-                <div class="mb-4">
-                    <label for="fileInput" class="block text-gray-700 font-medium mb-1">Pilih File</label>
-                    <input type="file" id="fileInput" class="w-full p-2 border border-gray-300 rounded-lg" required>
-                </div>
-                <button type="submit" class="btn bg-blue-600 text-white hover:bg-blue-700 w-full">
-                    <span id="uploadBtnText">Unggah Pesanan</span>
-                    <span id="uploadSpinner" class="hidden">Mengunggah...</span>
-                </button>
-            </form>
-        </div>
-        <div class="mt-8 text-center">
-            <button id="showLoginBtn" class="text-blue-600 hover:underline">Tim kami? Klik untuk masuk.</button>
-        </div>
-    </div>
+const app = express();
+const port = 3000;
+const host = '0.0.0.0';
 
-    <!-- Modal Login Tim -->
-    <div id="loginModal" class="modal">
-        <!-- ... Konten modal login tetap sama ... -->
-        <div class="modal-content">
-            <h2 class="text-2xl font-bold mb-4">Login Tim</h2>
-            <form id="loginForm">
-                <div class="mb-4">
-                    <label for="loginEmail" class="block text-gray-700 font-medium mb-1 text-left">Email</label>
-                    <input type="email" id="loginEmail" class="input-field w-full p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                </div>
-                <div class="mb-4">
-                    <label for="loginPassword" class="block text-gray-700 font-medium mb-1 text-left">Kata Sandi</label>
-                    <input type="password" id="loginPassword" class="input-field w-full p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                </div>
-                <button type="submit" class="btn bg-blue-600 text-white hover:bg-blue-700 w-full mb-2">Masuk</button>
-            </form>
-            <button id="closeLoginModalBtn" class="btn bg-gray-400 text-white hover:bg-gray-500 w-full">Batal</button>
-        </div>
-    </div>
+// Middleware
+app.use(express.json());
+app.use(cors());
 
-    <!-- Dashboard Tim -->
-    <div id="dashboard" class="dashboard-container">
-        <!-- Sidebar Dashboard -->
-        <aside class="sidebar">
-            <!-- PENAMBAHAN LOGO -->
-            <div class="mb-8 text-center">
-                <img id="sidebarLogo" src="https://placehold.co/100x100/FFFFFF/166534?text=Logo" alt="Logo Perusahaan" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-white/50">
-                <h2 class="text-xl font-bold" id="sidebarCompanyName">Nama Perusahaan</h2>
-            </div>
+let sock = null;
 
-            <h1 class="text-2xl font-bold mb-6 px-4">Menu</h1>
-            <div class="space-y-3">
-                <button id="navOrders" class="nav-item active w-full">Pesanan Masuk</button>
-                <button id="navSales" class="nav-item w-full">Buat Penjualan</button>
-                <button id="navCustomers" class="nav-item w-full">Kontak Pelanggan</button>
-                <button id="navPrices" class="nav-item w-full">Daftar Harga</button>
-                <button id="navProfile" class="nav-item w-full">Profil Perusahaan</button>
-                <button id="navReports" class="nav-item w-full">Laporan</button>
-                <!-- PENAMBAHAN MENU PENGATURAN -->
-                <button id="navSettings" class="nav-item w-full">Pengaturan Umum</button>
-            </div>
-            <div class="mt-auto">
-                <button id="logoutBtn" class="nav-item w-full">Keluar</button>
-            </div>
-        </aside>
+async function connectToWhatsApp() {
+    const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
+    
+    sock = makeWASocket({
+        logger: pino({ level: 'silent' }),
+        auth: state,
+        browser: Browsers.ubuntu('Chrome'), // Menyamarkan sebagai browser Chrome di Ubuntu
+    });
 
-        <!-- Konten Utama Dashboard -->
-        <main class="main-content">
-            <h1 id="dashboardTitle" class="text-3xl font-bold text-gray-800 mb-6">Pesanan Masuk</h1>
-            
-            <div id="ordersSection" class="section active">
-                <!-- ... Konten tetap sama ... -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-2xl font-bold mb-4">Daftar Pesanan Baru</h2>
-                    <div id="ordersList" class="space-y-4">
-                        <p class="text-center text-gray-500">Tidak ada pesanan.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="salesSection" class="section">
-                 <!-- ... Konten tetap sama ... -->
-                 <div class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-2xl font-bold mb-4">Buat Transaksi Penjualan Baru</h2>
-                    <form id="salesForm" class="space-y-4">
-                        <input type="text" id="salesCustomerName" placeholder="Nama Pelanggan" class="input-field w-full p-2 border" required>
-                        <textarea id="salesItems" placeholder="Detail Item (contoh: Stiker A5, 100 lembar)" class="input-field w-full p-2 border" required></textarea>
-                        <input type="number" id="salesTotal" placeholder="Total Harga (Rp)" class="input-field w-full p-2 border" required>
-                        <button type="submit" class="btn bg-green-500 text-white hover:bg-green-600">Simpan Transaksi</button>
-                    </form>
-                </div>
-            </div>
-
-            <div id="customersSection" class="section">
-                <!-- ... Konten tetap sama ... -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-2xl font-bold mb-4">Daftar Kontak Pelanggan</h2>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th class="py-2 px-4 text-left">Nama</th>
-                                    <th class="py-2 px-4 text-left">No. WhatsApp</th>
-                                    <th class="py-2 px-4 text-left">Tanggal Daftar</th>
-                                </tr>
-                            </thead>
-                            <tbody id="customersList">
-                                <!-- Data pelanggan akan dimuat di sini -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div id="pricesSection" class="section">
-                <!-- ... Konten tetap sama ... -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-2xl font-bold mb-4">Manajemen Daftar Harga</h2>
-                     <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th class="py-2 px-4 text-left">Nama Item</th>
-                                    <th class="py-2 px-4 text-left">Harga</th>
-                                    <th class="py-2 px-4 text-left">Satuan</th>
-                                </tr>
-                            </thead>
-                            <tbody id="pricesList">
-                                <!-- Daftar harga akan dimuat di sini -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="profileSection" class="section">
-                <!-- ... Konten profil yang sudah diperbarui tetap sama ... -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-2xl font-bold mb-6 border-b pb-4">Profil Cetak Cepat Digital</h2>
-                    <div class="text-gray-700 space-y-6">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Tentang Kami</h3>
-                            <p>Cetak Cepat Digital adalah solusi terpadu untuk semua kebutuhan percetakan Anda. Berdiri sejak tahun 2020, kami berkomitmen untuk memberikan hasil cetak berkualitas tinggi dengan pelayanan yang cepat dan harga yang kompetitif. Kami melayani pelanggan perorangan, UMKM, hingga perusahaan besar.</p>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Visi & Misi</h3>
-                            <p><strong>Visi:</strong> Menjadi percetakan digital terdepan yang paling andal dan inovatif di kota ini.</p>
-                            <p><strong>Misi:</strong> Memberikan kemudahan akses percetakan berkualitas bagi semua kalangan, didukung oleh teknologi modern dan sumber daya manusia yang profesional.</p>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Layanan Unggulan Kami</h3>
-                            <ul class="list-disc list-inside space-y-1">
-                                <li><strong>Cetak A3+:</strong> Poster, Stiker (Bontax, Vinyl), Art Paper, dll.</li>
-                                <li><strong>Cetak Indoor & Outdoor:</strong> Spanduk/Banner, X-Banner, Roll Banner, Stiker Vinyl.</li>
-                                <li><strong>Merchandise:</strong> Mug, Pin, Gantungan Kunci, Kaos.</li>
-                                <li><strong>Cetak Dokumen:</strong> Print Hitam Putih & Warna, Jilid, Laminating.</li>
-                                <li><strong>Kartu Nama & Brosur:</strong> Desain dan cetak untuk kebutuhan promosi bisnis Anda.</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Informasi Kontak</h3>
-                            <p><strong>Alamat:</strong> Jl. Kreatif No. 123, Jakarta, Indonesia</p>
-                            <p><strong>Email:</strong> kontak@cetakcepat.com</p>
-                            <p><strong>Telepon / WhatsApp Bisnis:</strong> 0812-3456-7890</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="reportsSection" class="section">
-                <!-- ... Konten tetap sama ... -->
-                 <div class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-2xl font-bold mb-4">Laporan & Statistik</h2>
-                    <p class="text-gray-600">Fitur laporan penjualan akan segera tersedia di sini.</p>
-                </div>
-            </div>
-
-            <!-- PENAMBAHAN HALAMAN PENGATURAN -->
-            <div id="settingsSection" class="section">
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-2xl font-bold mb-4">Pengaturan Umum</h2>
-                    <div class="space-y-6">
-                        <div>
-                            <label for="companyNameInput" class="block text-gray-700 font-medium mb-1">Nama Perusahaan</label>
-                            <input type="text" id="companyNameInput" class="input-field w-full p-2 border border-gray-300" placeholder="Masukkan nama perusahaan Anda">
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-1">Logo Perusahaan</label>
-                            <div class="flex items-center gap-4">
-                                <img id="logoPreview" src="https://placehold.co/100x100/FFFFFF/166534?text=Logo" alt="Preview Logo" class="w-24 h-24 rounded-full object-cover border">
-                                <label for="logoInput" class="btn bg-gray-600 text-white hover:bg-gray-700 cursor-pointer">
-                                    Unggah Logo Baru
-                                </label>
-                                <input type="file" id="logoInput" class="hidden" accept="image/*">
-                            </div>
-                        </div>
-                        <button id="saveSettingsBtn" class="btn bg-blue-600 text-white hover:bg-blue-700">Simpan Pengaturan</button>
-                    </div>
-                </div>
-            </div>
-
-        </main>
-    </div>
-
-    <!-- Toast Notification -->
-    <div id="toast" class="toast">Pesan Notifikasi</div>
-
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-        
-        const supabaseUrl = 'https://rgrajbbfleqvtsavrmcp.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJncmFqYmJmbGVxdnRzYXZybWNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk4NDYsImV4cCI6MjA3MDA1NTg0Nn0.3ihKh6zniO2hmFLB6A27H3KoeKzgUpguw2P0ofalG1k';
-        
-        // --- PERUBAHAN PENTING ---
-        // Ganti 'IP_VPS_ANDA' dengan alamat IP publik dari VPS Anda.
-        // Contoh: const baileysServerUrl = 'http://neroprinting.my.id/send-notification'; 
-        const baileysServerUrl = 'https://notif.neroprinting.my.id/send-notification'; 
-
-        let supabase = null;
-        const DOMElements = {};
-
-        function showToast(message, isError = false) {
-            const toast = DOMElements.toast;
-            toast.textContent = message;
-            toast.className = `toast show ${isError ? 'error' : ''}`;
-            setTimeout(() => {
-                toast.className = 'toast';
-            }, 3000);
+    sock.ev.on('connection.update', (update) => {
+        const { connection, lastDisconnect, qr } = update;
+        if(qr) {
+            console.log("------------------------------------------------");
+            console.log("       pindai QR code ini dengan WhatsApp      ");
+            console.log("------------------------------------------------");
+            qrcode.generate(qr, { small: true });
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const ids = ['landingPage', 'dashboard', 'showLoginBtn', 'loginModal', 'loginForm', 'closeLoginModalBtn', 'uploadForm', 'logoutBtn', 'dashboardTitle', 'ordersList', 'toast', 'uploadBtnText', 'uploadSpinner', 'salesForm', 'customersList', 'pricesList', 'sidebarLogo', 'logoPreview', 'logoInput', 'companyNameInput', 'sidebarCompanyName', 'saveSettingsBtn'];
-            const navIds = ['navOrders', 'navSales', 'navCustomers', 'navPrices', 'navProfile', 'navReports', 'navSettings'];
-            const sectionIds = ['ordersSection', 'salesSection', 'customersSection', 'pricesSection', 'profileSection', 'reportsSection', 'settingsSection'];
-
-            ids.forEach(id => DOMElements[id] = document.getElementById(id));
-            navIds.forEach(id => DOMElements[id] = document.getElementById(id));
-            sectionIds.forEach(id => DOMElements[id] = document.getElementById(id));
-
-            if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('URL_PROYEK_ANDA')) {
-                DOMElements.landingPage.innerHTML = `<div class="card p-6 text-center"><h2 class="text-2xl font-bold text-red-600 mb-4">Kesalahan Koneksi Database</h2><p class="text-gray-600">Mohon ganti nilai 'supabaseUrl' dan 'supabaseKey' dengan kredensial Supabase asli Anda.</p></div>`;
-                return;
+        if(connection === 'close') {
+            const shouldReconnect = (lastDisconnect.error)?.output?.statusCode !== DisconnectReason.loggedOut;
+            console.log('Koneksi terputus: ', lastDisconnect.error, ', mencoba menghubungkan kembali: ', shouldReconnect);
+            if(shouldReconnect) {
+                connectToWhatsApp();
             }
-
-            try {
-                supabase = createClient(supabaseUrl, supabaseKey);
-                console.log("Supabase berhasil diinisialisasi.");
-                setupEventListeners();
-                loadSettings(); // Memuat pengaturan saat aplikasi dimulai
-                checkUserSession();
-            } catch (error) {
-                console.error("Gagal menginisialisasi Supabase:", error.message);
-            }
-        });
-        
-        async function checkUserSession() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                console.log("Sesi ditemukan, menampilkan dashboard.");
-                DOMElements.landingPage.style.display = 'none';
-                DOMElements.dashboard.style.display = 'flex';
-                loadInitialData();
-            } else {
-                 console.log("Tidak ada sesi, menampilkan halaman landing.");
-                DOMElements.landingPage.style.display = 'flex';
-                DOMElements.dashboard.style.display = 'none';
-            }
+        } else if(connection === 'open') {
+            console.log('✅ Koneksi WhatsApp berhasil dibuka!');
         }
+    });
 
-        function setupEventListeners() {
-            DOMElements.showLoginBtn.addEventListener('click', () => DOMElements.loginModal.style.display = 'flex');
-            DOMElements.closeLoginModalBtn.addEventListener('click', () => DOMElements.loginModal.style.display = 'none');
+    sock.ev.on('creds.update', saveCreds);
+}
 
-            DOMElements.loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                
-                if (error) {
-                    showToast("Login gagal: " + error.message, true);
-                } else {
-                    showToast("Login berhasil!");
-                    DOMElements.loginModal.style.display = 'none';
-                    DOMElements.landingPage.style.display = 'none';
-                    DOMElements.dashboard.style.display = 'flex';
-                    loadInitialData();
-                }
-            });
+app.post('/send-notification', async (req, res) => {
+    const { name, phone, fileName } = req.body;
+    // Ganti dengan nomor WA tim Anda, diawali dengan 62
+    const teamPhoneNumber = '6281272658090'; 
 
-            DOMElements.logoutBtn.addEventListener('click', async () => {
-                await supabase.auth.signOut();
-                DOMElements.landingPage.style.display = 'flex';
-                DOMElements.dashboard.style.display = 'none';
-                showToast("Anda telah keluar.");
-            });
+    if (!sock || sock.ws.readyState !== 1) { // Periksa apakah koneksi benar-benar terbuka
+        console.error('Koneksi WhatsApp belum siap atau terputus.');
+        return res.status(503).json({ success: false, message: 'Layanan notifikasi sedang tidak tersedia. Coba lagi nanti.' });
+    }
 
-            DOMElements.uploadForm.addEventListener('submit', handleFileUpload);
-            
-            DOMElements.salesForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const customerName = DOMElements.salesForm.querySelector('#salesCustomerName').value;
-                const items = DOMElements.salesForm.querySelector('#salesItems').value;
-                const total = DOMElements.salesForm.querySelector('#salesTotal').value;
+    try {
+        const message = `🔔 *Pesanan Baru Masuk!*\n\n*Nama Pelanggan:* ${name}\n*No. WhatsApp:* ${phone}\n*Nama File:* ${fileName}\n\nMohon segera diproses.`;
+        await sock.sendMessage(teamPhoneNumber + '@s.whatsapp.net', { text: message });
+        console.log(`Notifikasi terkirim ke ${teamPhoneNumber}`);
+        res.status(200).json({ success: true, message: 'Notifikasi berhasil dikirim.' });
+    } catch (error) {
+        console.error('Gagal mengirim notifikasi:', error);
+        res.status(500).json({ success: false, message: 'Gagal mengirim notifikasi.' });
+    }
+});
 
-                const { error } = await supabase.from('sales_transactions').insert({
-                    customer_name: customerName,
-                    transaction_details: items,
-                    subtotal: total
-                });
+app.listen(port, host, () => {
+    console.log(`🚀 Server notifikasi berjalan di http://${host}:${port}`);
+    connectToWhatsApp();
+});
+```
+4.  Simpan dan keluar dari `nano` (`Ctrl + X`, lalu `Y`, lalu Enter).
 
-                if (error) {
-                    showToast('Gagal menyimpan transaksi: ' + error.message, true);
-                } else {
-                    showToast('Transaksi berhasil disimpan!');
-                    DOMElements.salesForm.reset();
-                }
-            });
-            
-            // --- LOGIKA PENGATURAN BARU ---
-            DOMElements.logoInput.addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        DOMElements.logoPreview.src = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
+**Langkah 3: Jalankan Ulang Server dengan PM2**
 
-            DOMElements.saveSettingsBtn.addEventListener('click', () => {
-                // Simpan nama
-                const companyName = DOMElements.companyNameInput.value;
-                localStorage.setItem('companyName', companyName);
-                DOMElements.sidebarCompanyName.textContent = companyName || 'Nama Perusahaan';
-                
-                // Simpan logo (jika ada perubahan)
-                if (DOMElements.logoPreview.src.startsWith('data:image')) {
-                    localStorage.setItem('companyLogo', DOMElements.logoPreview.src);
-                    DOMElements.sidebarLogo.src = DOMElements.logoPreview.src;
-                }
-                
-                showToast('Pengaturan berhasil disimpan!');
-            });
-            // --- AKHIR LOGIKA PENGATURAN ---
+Sekarang, kita akan menyalakan kembali servernya di latar belakang.
 
-
-            // Navigasi Dashboard
-            const navMapping = {
-                navOrders: { section: DOMElements.ordersSection, title: 'Pesanan Masuk', loader: loadOrders },
-                navSales: { section: DOMElements.salesSection, title: 'Buat Penjualan' },
-                navCustomers: { section: DOMElements.customersSection, title: 'Kontak Pelanggan', loader: loadCustomers },
-                navPrices: { section: DOMElements.pricesSection, title: 'Daftar Harga', loader: loadPrices },
-                navProfile: { section: DOMElements.profileSection, title: 'Profil Perusahaan' },
-                navReports: { section: DOMElements.reportsSection, title: 'Laporan' },
-                navSettings: { section: DOMElements.settingsSection, title: 'Pengaturan Umum' } // Tambahkan ini
-            };
-
-            Object.keys(navMapping).forEach(navId => {
-                DOMElements[navId].addEventListener('click', () => {
-                    Object.values(navMapping).forEach(item => {
-                        if (item.section) item.section.style.display = 'none';
-                    });
-                    Object.keys(navMapping).forEach(id => DOMElements[id].classList.remove('active'));
-
-                    const selected = navMapping[navId];
-                    selected.section.style.display = 'block';
-                    DOMElements.dashboardTitle.innerText = selected.title;
-                    DOMElements[navId].classList.add('active');
-                    if (selected.loader) selected.loader();
-                });
-            });
-        }
-        
-        function loadInitialData() {
-            loadOrders();
-        }
-
-        // --- FUNGSI BARU UNTUK MEMUAT PENGATURAN ---
-        function loadSettings() {
-            const savedLogo = localStorage.getItem('companyLogo');
-            const savedName = localStorage.getItem('companyName');
-
-            if (savedLogo) {
-                DOMElements.sidebarLogo.src = savedLogo;
-                DOMElements.logoPreview.src = savedLogo;
-            }
-            if (savedName) {
-                DOMElements.sidebarCompanyName.textContent = savedName;
-                DOMElements.companyNameInput.value = savedName;
-            }
-        }
-
-        async function handleFileUpload(e) {
-            e.preventDefault();
-            const customerName = document.getElementById('customerName').value;
-            const customerPhone = document.getElementById('customerPhone').value;
-            const file = document.getElementById('fileInput').files[0];
-
-            if (!file) {
-                showToast("Mohon pilih file terlebih dahulu.", true);
-                return;
-            }
-
-            DOMElements.uploadBtnText.classList.add('hidden');
-            DOMElements.uploadSpinner.classList.remove('hidden');
-            
-            await supabase.from('customers').upsert({ phone: customerPhone, name: customerName }, { onConflict: 'phone' });
-
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}.${fileExt}`;
-            const filePath = `orders/${fileName}`;
-
-            const { error: uploadError } = await supabase.storage.from('uploads').upload(filePath, file);
-
-            if (uploadError) {
-                showToast(`Gagal mengunggah file: ${uploadError.message}`, true);
-                DOMElements.uploadBtnText.classList.remove('hidden');
-                DOMElements.uploadSpinner.classList.add('hidden');
-                return;
-            }
-
-            const { error: orderError } = await supabase.from('orders').insert({
-                customer_name: customerName,
-                customer_phone: customerPhone,
-                file_path: filePath,
-                status: 'baru'
-            });
-
-            if (orderError) {
-                showToast(`Gagal menyimpan pesanan: ${orderError.message}`, true);
-            } else {
-                 showToast("Pesanan berhasil diunggah!");
-                 try {
-                    const response = await fetch(baileysServerUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: customerName, phone: customerPhone, fileName: file.name })
-                    });
-                    const result = await response.json();
-                    if (response.ok && result.success) {
-                        console.log("Permintaan notifikasi WhatsApp berhasil dikirim ke server Baileys.");
-                    } else {
-                        console.error("Server Baileys melaporkan kegagalan:", result.message);
-                    }
-                } catch(e) {
-                     console.error("Error saat menghubungi server Baileys:", e);
-                     showToast("Gagal menghubungi server notifikasi.", true);
-                }
-                DOMElements.uploadForm.reset();
-            }
-
-            DOMElements.uploadBtnText.classList.remove('hidden');
-            DOMElements.uploadSpinner.classList.add('hidden');
-        }
-
-        async function loadOrders() {
-            DOMElements.ordersList.innerHTML = `<p class="text-center text-gray-500">Memuat pesanan...</p>`;
-            const { data: orders, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
-
-            if (error) {
-                DOMElements.ordersList.innerHTML = `<p class="text-center text-red-500">Gagal memuat data.</p>`;
-            } else if (orders.length === 0) {
-                DOMElements.ordersList.innerHTML = `<p class="text-center text-gray-500">Tidak ada pesanan baru.</p>`;
-            } else {
-                DOMElements.ordersList.innerHTML = '';
-                orders.forEach(order => {
-                    const orderItem = document.createElement('div');
-                    orderItem.className = 'border border-gray-200 p-4 rounded-lg flex justify-between items-center';
-                    orderItem.innerHTML = `
-                        <div>
-                            <p class="font-bold text-gray-900">${order.customer_name}</p>
-                            <p class="text-gray-600">${order.customer_phone}</p>
-                            <p class="text-sm text-gray-500">File: ${order.file_path}</p>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                             <span class="text-sm font-medium bg-blue-100 text-blue-800 px-2 py-1 rounded-full">${order.status}</span>
-                            <button class="action-btn bg-blue-500 text-white hover:bg-blue-600">Detail</button>
-                        </div>
-                    `;
-                    DOMElements.ordersList.appendChild(orderItem);
-                });
-            }
-        }
-
-        async function loadCustomers() {
-            DOMElements.customersList.innerHTML = `<tr><td colspan="3" class="text-center p-4">Memuat data...</td></tr>`;
-            const { data, error } = await supabase.from('customers').select('*').order('created_at', { ascending: false });
-            
-            if (error) {
-                 DOMElements.customersList.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-red-500">Gagal memuat data.</td></tr>`;
-            } else if (data.length === 0) {
-                 DOMElements.customersList.innerHTML = `<tr><td colspan="3" class="text-center p-4">Tidak ada data pelanggan.</td></tr>`;
-            } else {
-                DOMElements.customersList.innerHTML = '';
-                data.forEach(customer => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td class="py-2 px-4 border-b">${customer.name}</td>
-                        <td class="py-2 px-4 border-b">${customer.phone}</td>
-                        <td class="py-2 px-4 border-b">${new Date(customer.created_at).toLocaleDateString('id-ID')}</td>
-                    `;
-                    DOMElements.customersList.appendChild(row);
-                });
-            }
-        }
-        
-        async function loadPrices() {
-             DOMElements.pricesList.innerHTML = `<tr><td colspan="3" class="text-center p-4">Memuat data...</td></tr>`;
-             DOMElements.pricesList.innerHTML = `<tr><td colspan="3" class="text-center p-4">Fitur daftar harga belum diimplementasikan.</td></tr>`;
-        }
-
-    </script>
-</body>
-</html>
-
+1.  Hapus proses lama (jika masih ada) untuk memastikan semuanya bersih:
+    ```bash
+    pm2 delete notif-whatsapp
+    ```
+2.  Mulai server dengan kode baru:
+    ```bash
+    pm2 start index.js --name notif-whatsapp
+    
