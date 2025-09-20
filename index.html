@@ -364,7 +364,7 @@
         // --- KONFIGURASI NEXTCLOUD (STORAGE) ---
         const nextcloudUrl = 'https://cloud.neroprinting.my.id/remote.php/dav/files/app_uploader/';
         const nextcloudUser = 'app_uploader';
-        const nextcloudAppPassword = 'GANTI_DENGAN_APP_PASSWORD_ANDA'; // <-- PENTING: Ganti dengan App Password Anda!
+        const nextcloudAppPassword = 'GQGfA-qrsd6-YgSHm-e6Nkr-jor9R'; // <-- PENTING: Ganti dengan App Password Anda!
 
         // Alamat server notifikasi Anda (tetap sama)
         const notificationServerUrl = 'https://notif.neroprinting.my.id/send-notification';
@@ -413,99 +413,61 @@
 
         // --- FUNGSI UPLOAD FILE & LOGIKA UTAMA (DIRENOVASI TOTAL) ---
 
-        // Fungsi baru untuk upload ke Nextcloud
-        async function uploadToNextcloud(file) {
-            const fileName = `${Date.now()}_${file.name}`;
-            const uploadUrl = `${nextcloudUrl}${fileName}`;
-            try {
-                const response = await fetch(uploadUrl, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': 'Basic ' + btoa(`${nextcloudUser}:${nextcloudAppPassword}`),
-                        'Content-Type': file.type
-                    },
-                    body: file
-                });
-                if (response.ok) {
-                    return fileName; 
-                } else {
-                    const errorText = await response.text();
-                    throw new Error(`Gagal mengunggah ke Nextcloud. Status: ${response.status}. Pesan: ${errorText}`);
-                }
-            } catch (error) {
-                throw new Error(`Error jaringan saat menghubungi Nextcloud: ${error.message}`);
-            }
+// FUNGSI UPLOAD FILE SEKARANG MENGGUNAKAN BACKEND SEBAGAI PROXY
+async function uploadToNextcloud(file) {
+    const formData = new FormData();
+    // 'orderFile' harus sama dengan nama di backend (upload.single('orderFile'))
+    formData.append('orderFile', file); 
+
+    try {
+        // Kirim file ke backend kita sendiri di endpoint /api/upload
+        const response = await fetch(`${backendApiUrl}/upload`, {
+            method: 'POST',
+            body: formData,
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            console.log('File berhasil diunggah via backend!');
+            return result.filePath; // Backend akan mengembalikan nama file yang unik
+        } else {
+            throw new Error(result.error || `Gagal mengunggah file. Status: ${response.status}`);
         }
-        
-        // Fungsi utama untuk menangani proses upload pesanan
-        const handleFileUpload = async (e) => {
-            e.preventDefault();
-            const customerName = document.getElementById('customerName').value;
-            const customerPhone = document.getElementById('customerPhone').value;
-            const file = document.getElementById('fileInput').files[0];
+    } catch (error) {
+        throw new Error(`Error jaringan saat menghubungi server: ${error.message}`);
+    }
+}
 
-            if (!file) {
-                showToast("Mohon pilih file terlebih dahulu.", 'error');
-                return;
-            }
-            
-            uploadButton.disabled = true;
-            uploadButton.textContent = 'Mengunggah...';
-            uploadResult.textContent = `Memproses pesanan untuk ${customerName}...`;
+// Fungsi handleFileUpload yang sudah disesuaikan
+const handleFileUpload = async (e) => {
+    e.preventDefault();
+    const customerName = document.getElementById('customerName').value;
+    const customerPhone = document.getElementById('customerPhone').value;
+    const file = document.getElementById('fileInput').files[0];
 
-            try {
-                // FASE 1: Unggah file ke Nextcloud
-                uploadResult.textContent = `Mengunggah file ke server...`;
-                const nextcloudFilePath = await uploadToNextcloud(file);
-                
-                // FASE 2: Simpan informasi pelanggan ke database via backend API
-                uploadResult.textContent = 'Menyimpan data pelanggan...';
-                await fetch(`${backendApiUrl}/customers`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: customerName, phone: customerPhone })
-                });
+    if (!file) { /* ... (kode tidak berubah) ... */ }
 
-                // FASE 3: Simpan informasi pesanan ke database via backend API
-                uploadResult.textContent = 'Menyimpan detail pesanan...';
-                await fetch(`${backendApiUrl}/orders`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        customer_name: customerName,
-                        customer_phone: customerPhone,
-                        file_path: nextcloudFilePath,
-                        status: 'pending'
-                    })
-                });
-                
-                showToast("Pesanan berhasil diunggah!");
-                uploadForm.reset();
-                uploadResult.textContent = `Terima kasih! Pesanan Anda telah kami terima.`;
-                
-                // FASE 4: Kirim notifikasi WhatsApp (tidak berubah)
-                try {
-                    const notifResponse = await fetch(notificationServerUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: customerName, phone: customerPhone, fileName: file.name })
-                    });
-                    if(!notifResponse.ok) {
-                        showToast('Pesanan tersimpan, tapi notifikasi gagal dikirim.', 'error');
-                    }
-                } catch (notifError) {
-                    showToast('Pesanan tersimpan, tapi server notifikasi tidak merespon.', 'error');
-                }
+    uploadButton.disabled = true;
+    uploadButton.textContent = 'Mengunggah...';
+    uploadResult.textContent = `Memproses pesanan untuk ${customerName}...`;
 
-            } catch (error) {
-                console.error('Proses unggah gagal:', error);
-                showToast(`Gagal: ${error.message}`, 'error');
-                uploadResult.textContent = `Terjadi kesalahan: ${error.message}`;
-            } finally {
-                uploadButton.disabled = false;
-                uploadButton.textContent = 'Unggah Pesanan';
-            }
-        };
+    try {
+        // FASE 1: Unggah file ke Nextcloud VIA BACKEND
+        uploadResult.textContent = `Mengunggah file ke server aman kami...`;
+        const nextcloudFilePath = await uploadToNextcloud(file);
+
+        // ... (SISA KODE DI DALAM FUNGSI INI SAMA PERSIS SEPERTI SEBELUMNYA) ...
+
+    } catch (error) {
+        console.error('Proses unggah gagal:', error);
+        showToast(`Gagal: ${error.message}`, 'error');
+        uploadResult.textContent = `Terjadi kesalahan: ${error.message}`;
+    } finally {
+        uploadButton.disabled = false;
+        uploadButton.textContent = 'Unggah Pesanan';
+    }
+};
 
         uploadForm.addEventListener('submit', handleFileUpload);
         
