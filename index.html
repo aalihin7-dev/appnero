@@ -92,7 +92,7 @@
 
         <!-- Main Navigation -->
         <nav class="container mx-auto flex items-center justify-between p-4">
-            <a href="#" class="flex items-center space-x-2">
+            <a href="#home" class="nav-link flex items-center space-x-2">
                 <span class="text-xl font-bold text-gray-800 bg-gray-200 px-3 py-1 rounded">ATK</span>
             </a>
             
@@ -117,7 +117,7 @@
             </div>
             
             <div class="md:hidden">
-                <button>
+                <button id="mobile-menu-button">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
                     </svg>
@@ -130,7 +130,7 @@
     <main>
         
         <!-- HALAMAN 1: HOME -->
-        <div id="home-page" class="page active">
+        <div id="home-page" class="page">
             <section class="slider-container">
                 <div class="slide active">
                     <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=2084&auto=format&fit=crop" alt="Office Stationery">
@@ -138,7 +138,7 @@
                         <div class="text-center text-white p-4">
                             <p class="text-lg tracking-widest">ATK</p>
                             <h1 class="text-4xl md:text-6xl font-bold my-4">OFFICE STATIONERY</h1>
-                            <button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 transition duration-300">
+                            <button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 transition duration-300 nav-link" data-target="produk-page">
                                 BELANJA SEKARANG
                             </button>
                         </div>
@@ -150,7 +150,7 @@
                          <div class="text-center text-white p-4">
                             <p class="text-lg tracking-widest">PERCETAKAN</p>
                             <h1 class="text-4xl md:text-6xl font-bold my-4">SOLUSI CETAK ANDA</h1>
-                            <button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 transition duration-300">
+                            <button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 transition duration-300 nav-link" data-target="produk-page">
                                 LIHAT PRODUK
                             </button>
                         </div>
@@ -162,10 +162,10 @@
 
         <!-- HALAMAN 2: DAFTAR PRODUK -->
         <div id="produk-page" class="page">
-             <div class="container mx-auto py-8 px-4 flex">
+             <div class="container mx-auto py-8 px-4 flex flex-col md:flex-row">
                 <!-- Sidebar Filter -->
-                <aside class="w-1/4 pr-8 hidden md:block">
-                    <h3 class="font-bold text-lg mb-4">FILTER</h3>
+                <aside class="w-full md:w-1/4 md:pr-8 mb-8 md:mb-0">
+                    <h3 class="font-bold text-lg mb-4 border-b pb-2">FILTER</h3>
                     <div class="space-y-4">
                         <div>
                             <h4 class="font-semibold mb-2">TIPE</h4>
@@ -176,7 +176,7 @@
                             </ul>
                         </div>
                          <div>
-                            <h4 class="font-semibold mb-2">JENIS</h4>
+                            <h4 class="font-semibold mb-2 mt-4">JENIS</h4>
                             <ul>
                                 <li><a href="#" class="text-gray-600 hover:text-purple-600">Alat Tulis Kantor</a></li>
                                 <li><a href="#" class="text-gray-600 hover:text-purple-600">Banner</a></li>
@@ -186,7 +186,7 @@
                 </aside>
                 <!-- Product Grid -->
                 <section class="w-full md:w-3/4">
-                    <div class="flex justify-between items-center mb-4">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
                         <p class="text-gray-600">Menampilkan <span id="product-count">0</span> Produk</p>
                         <div>{...}</div>
                     </div>
@@ -200,6 +200,7 @@
         <!-- HALAMAN 3: DETAIL PRODUK -->
         <div id="detail-produk-page" class="page">
             <div class="container mx-auto py-12 px-4">
+                 <p class="mb-4"><a href="#produk" class="nav-link text-purple-600 hover:underline"> &larr; Kembali ke Produk</a></p>
                 <div id="product-detail-content" class="bg-white p-8 rounded-lg shadow-lg flex flex-col md:flex-row gap-8">
                     <!-- Konten detail produk akan dimuat di sini -->
                 </div>
@@ -229,17 +230,17 @@
                 page.classList.toggle('active', page.id === pageId);
             });
             window.scrollTo(0, 0);
+             // Muat data jika navigasi ke halaman produk
+            if (pageId === 'produk-page') {
+                loadAllProducts();
+            }
         }
 
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const pageId = link.getAttribute('href').substring(1) + '-page';
-                navigateTo(pageId);
-                // Muat data jika navigasi ke halaman produk
-                if (pageId === 'produk-page') {
-                    loadAllProducts();
-                }
+                const targetPage = link.dataset.target || link.getAttribute('href').substring(1) + '-page';
+                navigateTo(targetPage);
             });
         });
         
@@ -248,19 +249,44 @@
         const dotsContainer = document.querySelector('.slider-dots');
         let currentSlide = 0;
         let slideInterval;
-        function createDots(){/*...kode slider...*/};
-        function showSlide(n){/*...kode slider...*/};
-        function nextSlide(){/*...kode slider...*/};
-        function resetInterval(){/*...kode slider...*/};
+        function createDots() {
+            if (!dotsContainer) return;
+            dotsContainer.innerHTML = '';
+            slides.forEach((_, i) => {
+                const dot = document.createElement('div');
+                dot.classList.add('dot');
+                if (i === 0) dot.classList.add('active');
+                dot.addEventListener('click', () => {
+                    showSlide(i);
+                    resetInterval();
+                });
+                dotsContainer.appendChild(dot);
+            });
+        }
+        function showSlide(n) {
+            if (slides.length === 0) return;
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if(dotsContainer.children[i]) dotsContainer.children[i].classList.remove('active');
+            });
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            if(dotsContainer.children[currentSlide]) dotsContainer.children[currentSlide].classList.add('active');
+        }
+        function nextSlide() { showSlide(currentSlide + 1); }
+        function resetInterval() {
+            clearInterval(slideInterval);
+            slideInterval = setInterval(nextSlide, 5000);
+        }
 
         // --- LOGIKA PRODUK ---
-        const backendApiUrl = '[https://api.neroprinting.my.id](https://api.neroprinting.my.id)';
         const allProductsContainer = document.getElementById('all-products-container');
         const productDetailContent = document.getElementById('product-detail-content');
 
         async function fetchProducts() {
             try {
-                const response = await fetch(`${backendApiUrl}/price-list`);
+                // Gunakan URL absolut untuk memastikan browser tidak bingung
+                const response = await fetch('https://api.neroprinting.my.id/price-list');
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 return await response.json();
             } catch (error) {
@@ -273,7 +299,8 @@
             allProductsContainer.innerHTML = `<p class="text-center col-span-full">Memuat produk...</p>`;
             const products = await fetchProducts();
             
-            document.getElementById('product-count').textContent = products.length;
+            const productCountEl = document.getElementById('product-count');
+            if(productCountEl) productCountEl.textContent = products.length;
 
             if (products.length === 0) {
                 allProductsContainer.innerHTML = `<p class="text-center col-span-full">Belum ada produk.</p>`;
@@ -281,8 +308,10 @@
             }
             
             allProductsContainer.innerHTML = products.map(p => `
-                <div class="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer" onclick="showProductDetail(${p.id})">
-                    <div class="h-48 bg-gray-200"></div>
+                <div class="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer group" onclick="showProductDetail(${p.id})">
+                    <div class="h-48 bg-gray-200 flex items-center justify-center">
+                        <span class="text-gray-400">Gambar Produk</span>
+                    </div>
                     <div class="p-4">
                         <h3 class="font-semibold truncate">${p.product_name}</h3>
                         <p class="text-purple-600 font-bold">Rp ${p.price.toLocaleString('id-ID')}</p>
@@ -292,17 +321,15 @@
         }
 
         async function showProductDetail(productId) {
-            productDetailContent.innerHTML = `<p>Memuat detail produk...</p>`;
+            productDetailContent.innerHTML = `<p class="text-center text-lg">Memuat detail produk...</p>`;
             navigateTo('detail-produk-page');
             
-            // NOTE: Kita butuh endpoint baru di backend: /api/price-list/:id
             try {
-                const response = await fetch(`${backendApiUrl}/price-list/${productId}`);
+                const response = await fetch(`https://api.neroprinting.my.id/price-list/${productId}`);
                 if (!response.ok) throw new Error('Produk tidak ditemukan');
                 const product = await response.json();
 
                 productDetailContent.innerHTML = `
-                    <!-- Kolom Gambar -->
                     <div class="w-full md:w-1/2">
                         <div class="bg-gray-200 h-96 rounded-lg flex items-center justify-center">
                             <span class="text-gray-400">Gambar Utama</span>
@@ -311,7 +338,6 @@
                              <div class="w-20 h-20 bg-gray-200 rounded-md"></div>
                         </div>
                     </div>
-                    <!-- Kolom Detail -->
                     <div class="w-full md:w-1/2">
                         <h2 class="text-3xl font-bold">${product.product_name}</h2>
                         <p class="text-2xl text-purple-600 font-bold my-4">Rp ${product.price.toLocaleString('id-ID')}</p>
@@ -344,3 +370,4 @@
     </script>
 </body>
 </html>
+
