@@ -414,10 +414,10 @@
         // --- FUNGSI UPLOAD FILE & LOGIKA UTAMA (DIRENOVASI TOTAL) ---
 
 // FUNGSI UPLOAD FILE SEKARANG MENGGUNAKAN BACKEND SEBAGAI PROXY
-async function uploadToNextcloud(file) {
+async function uploadToNextcloud(file, customerPhone) { // <-- Tambahkan customerPhone di sini
     const formData = new FormData();
-    // 'orderFile' harus sama dengan nama di backend (upload.single('orderFile'))
-    formData.append('orderFile', file); 
+    formData.append('orderFile', file);
+    formData.append('customerPhone', customerPhone); // <-- Tambahkan nomor WA ke paket
 
     try {
         // Kirim file ke backend kita sendiri di endpoint /api/upload
@@ -455,7 +455,7 @@ const handleFileUpload = async (e) => {
     try {
         // FASE 1: Unggah file ke Nextcloud VIA BACKEND
         uploadResult.textContent = `Mengunggah file ke server aman kami...`;
-        const nextcloudFilePath = await uploadToNextcloud(file);
+        const nextcloudFilePath = await uploadToNextcloud(file, customerPhone); // <-- Kirim nomor WA
 
         // ... (SISA KODE DI DALAM FUNGSI INI SAMA PERSIS SEPERTI SEBELUMNYA) ...
 
