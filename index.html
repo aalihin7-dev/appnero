@@ -3,688 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Percetakan Nero</title>
+    <title>Nero Store - Office Stationery</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            color: #1f2937;
+            font-family: 'Poppins', sans-serif;
         }
-        .main-container, .dashboard-container {
-            display: flex;
-            min-height: 100vh;
-        }
-        .hero {
-            text-align: center;
-            padding: 2rem;
-            max-width: 800px;
-        }
-        .card {
-            background-color: white;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            padding: 2rem;
-        }
-        .btn {
-            border-radius: 0.75rem;
-            padding: 0.75rem 1.5rem;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        .input-field {
-            border-radius: 0.5rem;
-            border: 1px solid #d1d5db;
-        }
-        /* Sidebar Styles */
-        .sidebar {
-            width: 280px;
-            background-color: #166534; /* Hijau Tua */
-            color: white;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-        }
-        .sidebar-header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid #227a42;
-        }
-        .logo-container {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-color: #f0fdf4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1rem;
+        /* Custom styles untuk slider */
+        .slider-container {
+            position: relative;
+            width: 100%;
+            height: 85vh; /* Tinggi slider */
             overflow: hidden;
         }
-        .logo-placeholder {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #166534;
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
         }
-        .company-logo {
+        .slide.active {
+            opacity: 1;
+        }
+        .slide img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        .company-name {
-            font-size: 1.25rem;
-            font-weight: 700;
-        }
-        .nav-item {
-            cursor: pointer;
-            padding: 0.85rem 1.25rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            text-align: left;
-            width: 100%;
-        }
-        .nav-item:hover:not(.active) {
-            background-color: #15803d;
-        }
-        .nav-item.active {
-            background-color: #22c55e;
-            color: white;
-        }
-        .main-content {
-            flex-grow: 1;
-            padding: 2rem;
-            overflow-y: auto;
-        }
-        .section { display: none; }
-        .section.active { display: block; }
-        
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0; top: 0;
-            width: 100%; height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: #fff;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-            width: 90%;
-            max-width: 500px;
-        }
-
-        /* Toast Notification */
-        .toast {
-            position: fixed;
+        .slider-dots {
+            position: absolute;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            padding: 1rem 1.5rem;
-            border-radius: 0.75rem;
-            color: white;
-            font-weight: 600;
-            z-index: 2000;
-            opacity: 0;
-            transition: opacity 0.3s, bottom 0.3s;
+            display: flex;
+            gap: 10px;
         }
-        .toast.show {
-            opacity: 1;
-            bottom: 30px;
-        }
-        .toast.success { background-color: #22c55e; }
-        .toast.error { background-color: #ef4444; }
-
-        /* Loader */
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
+        .dot {
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 2rem auto;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .dot.active {
+            background-color: white;
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-50">
 
-    <!-- Landing Page (Hanya untuk pelanggan) -->
-    <div id="landingPage" class="main-container flex-col justify-center items-center p-4">
-        <div class="hero">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900">Selamat Datang di Percetakan Nero</h1>
-            <p class="mt-4 text-lg md:text-xl text-gray-600">Unggah file Anda, kami urus sisanya.</p>
+    <!-- HEADER -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <!-- Top Bar -->
+        <div class="bg-gray-100 text-gray-600 text-sm py-2 px-6">
+            <div class="container mx-auto flex justify-between items-center">
+                <div>
+                    <span>nerostore</span> | <span>Hubungi kami: 6282177576869</span>
+                </div>
+                <div>
+                    <a href="#" class="hover:text-purple-600">Akun Saya ▼</a>
+                </div>
+            </div>
         </div>
 
-        <div class="card p-6 w-full max-w-xl">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">Unggah File Pesanan Anda</h2>
-            <form id="uploadForm">
-                <div class="mb-4">
-                    <label for="customerName" class="block text-gray-700 font-medium mb-2">Nama Lengkap</label>
-                    <input type="text" id="customerName" class="input-field w-full p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Masukkan nama Anda" required>
+        <!-- Main Navigation -->
+        <nav class="container mx-auto flex items-center justify-between p-4">
+            <!-- Logo -->
+            <a href="#" class="flex items-center space-x-2">
+                <!-- Anda bisa ganti dengan tag <img> untuk logo asli -->
+                <span class="text-xl font-bold text-gray-800 bg-gray-200 px-3 py-1 rounded">ATK</span>
+            </a>
+            
+            <!-- Menu Items (Desktop) -->
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="#" class="text-gray-600 hover:text-purple-600 font-medium">HOME</a>
+                <a href="#" class="text-gray-600 hover:text-purple-600 font-medium">PRODUK</a>
+                <a href="#" class="text-gray-600 hover:text-purple-600 font-medium">BLOG</a>
+                <a href="#" class="text-gray-600 hover:text-purple-600 font-medium">KONTAK</a>
+            </div>
+
+            <!-- Search and Cart -->
+            <div class="flex items-center space-x-4">
+                <div class="relative hidden sm:block">
+                    <input type="text" placeholder="Cari Produk..." class="border rounded-full py-2 px-4 w-40 focus:outline-none focus:ring-2 focus:ring-purple-400">
                 </div>
-                <div class="mb-4">
-                    <label for="customerPhone" class="block text-gray-700 font-medium mb-2">Nomor WhatsApp</label>
-                    <input type="tel" id="customerPhone" class="input-field w-full p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contoh: 6281234567890" required>
-                </div>
-                <div class="mb-6">
-                    <label for="fileInput" class="block text-gray-700 font-medium mb-2">Pilih File</label>
-                    <input type="file" id="fileInput" class="w-full text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" required>
-                </div>
-                <button type="submit" id="uploadButton" class="btn bg-blue-600 text-white hover:bg-blue-700 w-full p-3">
-                    Unggah Pesanan
+                <button class="bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-purple-700 hidden sm:block">CARI</button>
+                <a href="#" class="relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span class="absolute -top-2 -right-2 bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </a>
+            </div>
+            
+            <!-- Hamburger Menu (Mobile) -->
+            <div class="md:hidden">
+                <button>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
                 </button>
-            </form>
-             <!-- Placeholder untuk pesan hasil upload -->
-            <div id="uploadResult" class="mt-4 text-center font-medium"></div>
-        </div>
+            </div>
+        </nav>
+    </header>
 
-        <div class="mt-8 text-center">
-            <button id="showLoginBtn" class="text-blue-600 hover:underline">Tim kami? Klik untuk masuk.</button>
-        </div>
-    </div>
+    <!-- MAIN CONTENT -->
+    <main>
+        <!-- Hero Slider Section -->
+        <section class="slider-container">
+            <!-- Slide 1 -->
+            <div class="slide active">
+                <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=2084&auto=format&fit=crop" alt="Office Stationery">
+                <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                    <div class="text-center text-white p-4">
+                        <p class="text-lg tracking-widest">ATK</p>
+                        <h1 class="text-4xl md:text-6xl font-bold my-4">OFFICE STATIONERY</h1>
+                        <button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 transition duration-300">
+                            BELANJA SEKARANG
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Slide 2 -->
+            <div class="slide">
+                <img src="https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?q=80&w=1974&auto=format&fit=crop" alt="Peralatan Kantor">
+                <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                    <div class="text-center text-white p-4">
+                        <p class="text-lg tracking-widest">PERCETAKAN</p>
+                        <h1 class="text-4xl md:text-6xl font-bold my-4">SOLUSI CETAK ANDA</h1>
+                        <button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 transition duration-300">
+                            LIHAT PRODUK
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slider Controls -->
+            <div class="slider-dots"></div>
+        </section>
 
-    <!-- Modal Login Tim -->
-    <div id="loginModal" class="modal">
-        <div class="modal-content">
-            <h2 class="text-2xl font-bold mb-6">Login Tim</h2>
-            <form id="loginForm">
-                <div class="mb-4">
-                    <label for="loginEmail" class="block text-gray-700 font-medium mb-2 text-left">Email</label>
-                    <input type="email" id="loginEmail" class="input-field w-full p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+        <!-- Product Section (Placeholder) -->
+        <section class="container mx-auto py-16 px-4">
+            <h2 class="text-3xl font-bold text-center mb-8">Produk Terlaris</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Contoh Kartu Produk -->
+                <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                    <p class="text-gray-500">Produk akan ditampilkan di sini...</p>
                 </div>
-                <div class="mb-4">
-                    <label for="loginPassword" class="block text-gray-700 font-medium mb-2 text-left">Kata Sandi</label>
-                    <input type="password" id="loginPassword" class="input-field w-full p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                    <p class="text-gray-500">Produk akan ditampilkan di sini...</p>
                 </div>
-                <button type="submit" class="btn bg-blue-600 text-white hover:bg-blue-700 w-full mb-2 p-3">Masuk</button>
-            </form>
-            <button id="closeLoginModalBtn" class="btn bg-gray-400 text-white hover:bg-gray-500 w-full mt-2 p-3">Batal</button>
-        </div>
-    </div>
+                <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                    <p class="text-gray-500">Produk akan ditampilkan di sini...</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                    <p class="text-gray-500">Produk akan ditampilkan di sini...</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
     
-    <!-- Modal Penjualan Manual -->
-    <div id="newSaleModal" class="modal">
-        <div class="modal-content">
-            <h2 class="text-2xl font-bold mb-6">Buat Penjualan Manual</h2>
-            <form id="newSaleForm">
-                <div class="mb-4">
-                    <label for="saleCustomerName" class="block text-gray-700 font-medium mb-2 text-left">Nama Pelanggan</label>
-                    <input type="text" id="saleCustomerName" class="input-field w-full p-3" required>
-                </div>
-                <div class="mb-4">
-                    <label for="saleSubtotal" class="block text-gray-700 font-medium mb-2 text-left">Total Harga (Rp)</label>
-                    <input type="number" id="saleSubtotal" class="input-field w-full p-3" required>
-                </div>
-                 <div class="mb-6">
-                    <label for="saleNotes" class="block text-gray-700 font-medium mb-2 text-left">Catatan</label>
-                    <textarea id="saleNotes" class="input-field w-full p-3" rows="3" placeholder="Contoh: Cetak 100 lembar A4"></textarea>
-                </div>
-                <button type="submit" class="btn bg-blue-600 text-white hover:bg-blue-700 w-full mb-2 p-3">Simpan Penjualan</button>
-            </form>
-            <button id="closeNewSaleModalBtn" class="btn bg-gray-400 text-white hover:bg-gray-500 w-full mt-2 p-3">Batal</button>
-        </div>
+    <!-- Floating Action Buttons -->
+    <div class="fixed bottom-4 right-4 flex flex-col space-y-3">
+        <button class="bg-purple-600 text-white h-12 w-12 rounded-full flex items-center justify-center shadow-lg hover:bg-purple-700">
+             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
+        </button>
+        <button class="bg-pink-500 text-white h-12 w-12 rounded-full flex items-center justify-center shadow-lg hover:bg-pink-600">
+             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+        </button>
     </div>
 
-    <!-- Dashboard Tim -->
-    <div id="dashboard" class="dashboard-container" style="display: none;">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-container">
-                    <img id="companyLogo" src="" alt="Logo" class="company-logo" style="display:none;">
-                    <span id="logoPlaceholder" class="logo-placeholder">P</span>
-                </div>
-                <span id="companyName" class="company-name">Percetakan</span>
-            </div>
-            
-            <nav class="flex flex-col space-y-3">
-                <button data-section="ordersSection" class="nav-item">Pesanan Masuk</button>
-                <button data-section="priceListSection" class="nav-item">Daftar Harga</button>
-                <button data-section="salesSection" class="nav-item">Penjualan Manual</button>
-                <button data-section="customersSection" class="nav-item">Kontak Pelanggan</button>
-                <button data-section="profileSection" class="nav-item">Profil Perusahaan</button>
-                <button data-section="settingsSection" class="nav-item">Pengaturan Umum</button>
-            </nav>
-            
-            <div class="mt-auto pt-4 border-t border-t-[#227a42]">
-                <button id="logoutBtn" class="nav-item bg-red-600 text-white hover:bg-red-700">Keluar</button>
-            </div>
-        </aside>
 
-        <main class="main-content">
-            <h1 id="dashboardTitle" class="text-3xl font-bold text-gray-800 mb-8"></h1>
-            
-            <!-- Berbagai Section Dashboard -->
-            <div id="ordersSection" class="section">
-                <div id="ordersList" class="space-y-4"></div>
-            </div>
-            
-            <div id="priceListSection" class="section">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="md:col-span-1">
-                        <div class="card p-6">
-                            <h2 class="text-xl font-bold mb-4">Tambah Item Harga</h2>
-                            <form id="addPriceForm">
-                                <div class="mb-4">
-                                    <label for="productName" class="block font-medium mb-1">Nama Produk</label>
-                                    <input type="text" id="productName" class="input-field w-full p-2" required>
-                                </div>
-                                <div class="mb-4">
-                                    <label for="productPrice" class="block font-medium mb-1">Harga (Rp)</label>
-                                    <input type="number" id="productPrice" class="input-field w-full p-2" required>
-                                </div>
-                                <button type="submit" class="btn bg-green-600 text-white w-full">Tambah</button>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="md:col-span-2">
-                        <div class="card p-6">
-                            <h2 class="text-xl font-bold mb-4">Daftar Harga Saat Ini</h2>
-                            <div id="priceListContainer" class="space-y-3"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <script>
+        // --- LOGIKA UNTUK SLIDER ---
+        const slides = document.querySelectorAll('.slide');
+        const dotsContainer = document.querySelector('.slider-dots');
+        let currentSlide = 0;
+        let slideInterval;
 
-            <div id="salesSection" class="section">
-                <div class="flex justify-end mb-6">
-                    <button id="showNewSaleModalBtn" class="btn bg-blue-600 text-white">Buat Penjualan Baru</button>
-                </div>
-                <div class="card p-6">
-                    <h2 class="text-xl font-bold mb-4">Riwayat Penjualan Manual</h2>
-                    <div id="salesListContainer" class="space-y-4"></div>
-                </div>
-            </div>
-            
-            <div id="customersSection" class="section">
-                 <div class="card p-6">
-                    <h2 class="text-xl font-bold mb-4">Daftar Pelanggan</h2>
-                    <div id="customersList" class="space-y-4"></div>
-                </div>
-            </div>
-
-            <div id="profileSection" class="section">
-                <div class="card p-8 prose max-w-none">
-                    <h2>Tentang Kami</h2>
-                    <p>Kami adalah percetakan profesional yang berdedikasi untuk memberikan hasil cetak berkualitas tinggi dengan layanan yang cepat dan ramah. Sejak berdiri, kami terus berinovasi dengan teknologi terbaru untuk memenuhi segala kebutuhan cetak Anda, mulai dari dokumen sederhana hingga materi promosi yang kompleks.</p>
-                    <h3>Layanan Kami</h3>
-                    <ul>
-                        <li>Cetak Digital A3+ (Stiker, Art Paper, dll.)</li>
-                        <li>Cetak Brosur, Flyer, dan Poster</li>
-                        <li>Cetak Kartu Nama dan Id Card</li>
-                        <li>Cetak Banner, Spanduk, dan X-Banner</li>
-                        <li>Jilid Spiral, Lem Panas, dan Hardcover</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div id="settingsSection" class="section">
-                 <div class="card p-6 max-w-lg mx-auto">
-                    <h2 class="text-xl font-bold mb-4">Pengaturan Umum</h2>
-                    <div class="mb-4">
-                        <label for="settingCompanyName" class="block font-medium mb-1">Nama Perusahaan</label>
-                        <input type="text" id="settingCompanyName" class="input-field w-full p-2">
-                    </div>
-                    <div class="mb-4">
-                        <label for="settingLogo" class="block font-medium mb-1">Unggah Logo</label>
-                        <input type="file" id="settingLogo" accept="image/*" class="input-field w-full text-sm">
-                    </div>
-                    <button id="saveSettingsBtn" class="btn bg-blue-600 text-white w-full">Simpan Pengaturan</button>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Toast Notification Element -->
-    <div id="toast" class="toast"></div>
-
-    <script type="module">
-        // ===================================================================
-        // ===            BAGIAN YANG DIMODIFIKASI (START)                 ===
-        // ===================================================================
-
-        // --- KONFIGURASI BARU UNTUK BACKEND DI VPS ---
-        const backendApiUrl = '/api'; // Alamat "Kantor Pos" (Backend API) kita
-        
-        // --- KONFIGURASI NEXTCLOUD (STORAGE) ---
-        const nextcloudUrl = 'https://cloud.neroprinting.my.id/remote.php/dav/files/app_uploader/';
-        const nextcloudUser = 'app_uploader';
-        const nextcloudAppPassword = 'GQGfA-qrsd6-YgSHm-e6Nkr-jor9R'; // <-- PENTING: Ganti dengan App Password Anda!
-
-        // Alamat server notifikasi Anda (tetap sama)
-        const notificationServerUrl = 'https://notif.neroprinting.my.id/send-notification';
-        
-        // --- DEFINISI ELEMEN DOM (Tidak Berubah) ---
-        const landingPage = document.getElementById('landingPage');
-        const dashboard = document.getElementById('dashboard');
-        const showLoginBtn = document.getElementById('showLoginBtn');
-        const loginModal = document.getElementById('loginModal');
-        const loginForm = document.getElementById('loginForm');
-        const closeLoginModalBtn = document.getElementById('closeLoginModalBtn');
-        const uploadForm = document.getElementById('uploadForm');
-        const uploadButton = document.getElementById('uploadButton');
-        const uploadResult = document.getElementById('uploadResult');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const navButtons = document.querySelectorAll('.nav-item');
-        const sections = document.querySelectorAll('.section');
-        const dashboardTitle = document.getElementById('dashboardTitle');
-        const toast = document.getElementById('toast');
-        const companyNameEl = document.getElementById('companyName');
-        const companyLogoEl = document.getElementById('companyLogo');
-        const logoPlaceholderEl = document.getElementById('logoPlaceholder');
-        const settingCompanyName = document.getElementById('settingCompanyName');
-        const settingLogo = document.getElementById('settingLogo');
-        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
-        const addPriceForm = document.getElementById('addPriceForm');
-        const priceListContainer = document.getElementById('priceListContainer');
-        const showNewSaleModalBtn = document.getElementById('showNewSaleModalBtn');
-        const newSaleModal = document.getElementById('newSaleModal');
-        const closeNewSaleModalBtn = document.getElementById('closeNewSaleModalBtn');
-        const newSaleForm = document.getElementById('newSaleForm');
-        const salesListContainer = document.getElementById('salesListContainer');
-
-        // --- FUNGSI-FUNGSI BANTU (Tidak Berubah) ---
-        const showToast = (message, type = 'success') => {
-            toast.textContent = message;
-            toast.className = `toast show ${type}`;
-            setTimeout(() => {
-                toast.className = toast.className.replace('show', '');
-            }, 3000);
-        };
-
-        const showLoader = (container) => {
-            container.innerHTML = '<div class="loader"></div>';
-        };
-
-        // --- FUNGSI UPLOAD FILE & LOGIKA UTAMA (DIRENOVASI TOTAL) ---
-
-// FUNGSI UPLOAD FILE SEKARANG MENGGUNAKAN BACKEND SEBAGAI PROXY
-async function uploadToNextcloud(file, customerPhone) { // <-- Tambahkan customerPhone di sini
-    const formData = new FormData();
-    formData.append('orderFile', file);
-    formData.append('customerPhone', customerPhone); // <-- Tambahkan nomor WA ke paket
-
-    try {
-        // Kirim file ke backend kita sendiri di endpoint /api/upload
-        const response = await fetch(`${backendApiUrl}/upload`, {
-            method: 'POST',
-            body: formData,
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            console.log('File berhasil diunggah via backend!');
-            return result.filePath; // Backend akan mengembalikan nama file yang unik
-        } else {
-            throw new Error(result.error || `Gagal mengunggah file. Status: ${response.status}`);
-        }
-    } catch (error) {
-        throw new Error(`Error jaringan saat menghubungi server: ${error.message}`);
-    }
-}
-
-// Fungsi handleFileUpload yang sudah disesuaikan
-const handleFileUpload = async (e) => {
-    e.preventDefault();
-    const customerName = document.getElementById('customerName').value;
-    const customerPhone = document.getElementById('customerPhone').value;
-    const file = document.getElementById('fileInput').files[0];
-
-    if (!file) { /* ... (kode tidak berubah) ... */ }
-
-    uploadButton.disabled = true;
-    uploadButton.textContent = 'Mengunggah...';
-    uploadResult.textContent = `Memproses pesanan untuk ${customerName}...`;
-
-    try {
-        // FASE 1: Unggah file ke Nextcloud VIA BACKEND
-        uploadResult.textContent = `Mengunggah file ke server aman kami...`;
-        const nextcloudFilePath = await uploadToNextcloud(file, customerPhone); // <-- Kirim nomor WA
-
-        // ... (SISA KODE DI DALAM FUNGSI INI SAMA PERSIS SEPERTI SEBELUMNYA) ...
-
-    } catch (error) {
-        console.error('Proses unggah gagal:', error);
-        showToast(`Gagal: ${error.message}`, 'error');
-        uploadResult.textContent = `Terjadi kesalahan: ${error.message}`;
-    } finally {
-        uploadButton.disabled = false;
-        uploadButton.textContent = 'Unggah Pesanan';
-        uploadForm.reset();
-    }
-};
-
-        uploadForm.addEventListener('submit', handleFileUpload);
-        
-        // --- FUNGSI OTENTIKASI (DIRENOVASI) ---
-
-        // Fungsi login sekarang hanya untuk UI, tidak ada panggilan ke Supabase Auth
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            // Logika login sederhana (ganti dengan logika backend sesungguhnya nanti)
-            if (email === "admin@nero.com" && password === "password123") {
-                localStorage.setItem('isLoggedIn', 'true');
-                checkAuthStatus();
-                loginModal.style.display = 'none';
-                loginForm.reset();
-            } else {
-                showToast('Email atau password salah', 'error');
-            }
-        });
-        
-        logoutBtn.addEventListener('click', () => {
-            localStorage.removeItem('isLoggedIn');
-            checkAuthStatus();
-        });
-
-        // Cek status login
-        const checkAuthStatus = () => {
-            if (localStorage.getItem('isLoggedIn') === 'true') {
-                landingPage.style.display = 'none';
-                dashboard.style.display = 'flex';
-                switchSection('ordersSection');
-            } else {
-                landingPage.style.display = 'flex';
-                dashboard.style.display = 'none';
-            }
-        };
-        
-        showLoginBtn.addEventListener('click', () => loginModal.style.display = 'flex');
-        closeLoginModalBtn.addEventListener('click', () => loginModal.style.display = 'none');
-
-        // --- FUNGSI MEMUAT DATA DARI BACKEND API BARU ---
-
-        async function loadOrders() {
-            const container = document.getElementById('ordersList');
-            showLoader(container);
-            try {
-                const response = await fetch(`${backendApiUrl}/orders`);
-                const data = await response.json();
-                if (data.length === 0) {
-                    container.innerHTML = '<p class="text-gray-500 text-center">Belum ada pesanan masuk.</p>';
-                } else {
-                    container.innerHTML = data.map(order => `
-                        <div class="card p-4 flex justify-between items-center">
-                            <div>
-                                <p class="font-bold">${order.customer_name}</p>
-                                <p class="text-sm text-gray-600">${order.customer_phone}</p>
-                                <p class="text-xs text-gray-400">File: ${order.file_path.split('/').pop()}</p>
-                            </div>
-                            <span class="text-sm font-medium text-blue-600 capitalize">${order.status}</span>
-                        </div>
-                    `).join('');
-                }
-            } catch (error) {
-                 container.innerHTML = `<p class="text-red-500">Gagal memuat pesanan: ${error.message}</p>`;
-            }
-        }
-        
-        async function loadCustomers() {
-             const container = document.getElementById('customersList');
-             showLoader(container);
-             try {
-                const response = await fetch(`${backendApiUrl}/customers`);
-                const data = await response.json();
-                if (data.length === 0) {
-                    container.innerHTML = '<p class="text-gray-500 text-center">Belum ada data pelanggan.</p>';
-                } else {
-                    container.innerHTML = data.map(customer => `
-                        <div class="card p-4 flex justify-between items-center">
-                            <div>
-                                <p class="font-bold">${customer.name}</p>
-                                <p class="text-sm text-gray-600">${customer.phone}</p>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-             } catch(error) {
-                container.innerHTML = `<p class="text-red-500">Gagal memuat pelanggan: ${error.message}</p>`;
-             }
-        }
-        
-        async function loadPriceList() {
-            const container = document.getElementById('priceListContainer');
-            showLoader(container);
-            try {
-                const response = await fetch(`${backendApiUrl}/price-list`);
-                const data = await response.json();
-                 if (data.length === 0) {
-                    container.innerHTML = '<p class="text-gray-500 text-center">Belum ada item harga.</p>';
-                } else {
-                    container.innerHTML = data.map(item => `
-                        <div class="p-3 border rounded-lg flex justify-between items-center">
-                            <span>${item.product_name}</span>
-                            <span class="font-semibold">Rp ${item.price.toLocaleString('id-ID')}</span>
-                        </div>
-                    `).join('');
-                }
-            } catch(error) {
-                 container.innerHTML = `<p class="text-red-500">Gagal memuat daftar harga: ${error.message}</p>`;
-            }
-        }
-        
-        addPriceForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const productName = document.getElementById('productName').value;
-            const productPrice = document.getElementById('productPrice').value;
-            try {
-                await fetch(`${backendApiUrl}/price-list`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ product_name: productName, price: productPrice })
+        // Membuat dots berdasarkan jumlah slide
+        function createDots() {
+            slides.forEach((_, i) => {
+                const dot = document.createElement('div');
+                dot.classList.add('dot');
+                if (i === 0) dot.classList.add('active');
+                dot.addEventListener('click', () => {
+                    showSlide(i);
+                    resetInterval();
                 });
-                showToast("Item berhasil ditambahkan.");
-                addPriceForm.reset();
-                loadPriceList();
-            } catch(error) {
-                showToast(`Gagal menambah: ${error.message}`, 'error');
-            }
-        });
-        
-        async function loadSales() {
-            const container = document.getElementById('salesListContainer');
-            showLoader(container);
-            try {
-                const response = await fetch(`${backendApiUrl}/sales`);
-                const data = await response.json();
-                if (data.length === 0) {
-                    container.innerHTML = '<p class="text-gray-500 text-center">Belum ada penjualan manual.</p>';
-                } else {
-                    container.innerHTML = data.map(sale => `
-                        <div class="border-b pb-3 mb-3">
-                            <div class="flex justify-between items-start">
-                                <p class="font-bold">${sale.customer_name}</p>
-                                <p class="font-semibold text-lg">Rp ${sale.subtotal.toLocaleString('id-ID')}</p>
-                            </div>
-                            <p class="text-sm text-gray-500">${sale.notes || 'Tidak ada catatan'}</p>
-                            <p class="text-xs text-gray-400 text-right mt-1">${new Date(sale.created_at).toLocaleString('id-ID')}</p>
-                        </div>
-                    `).join('');
-                }
-            } catch (error) {
-                container.innerHTML = `<p class="text-red-500">Gagal memuat penjualan: ${error.message}</p>`;
-            }
-        }
-        
-        showNewSaleModalBtn.addEventListener('click', () => newSaleModal.style.display = 'flex');
-        closeNewSaleModalBtn.addEventListener('click', () => newSaleModal.style.display = 'none');
-
-        newSaleForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const customer_name = document.getElementById('saleCustomerName').value;
-            const subtotal = document.getElementById('saleSubtotal').value;
-            const notes = document.getElementById('saleNotes').value;
-            try {
-                await fetch(`${backendApiUrl}/sales`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ customer_name, subtotal, notes })
-                });
-                showToast("Penjualan berhasil disimpan.");
-                newSaleForm.reset();
-                newSaleModal.style.display = 'none';
-                loadSales();
-            } catch(error) {
-                 showToast(`Gagal menyimpan: ${error.message}`, 'error');
-            }
-        });
-        
-        // --- FUNGSI LAINNYA (TIDAK BERUBAH) ---
-        // Navigasi
-        const switchSection = (sectionId) => {
-            sections.forEach(sec => sec.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
-            navButtons.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.section === sectionId);
+                dotsContainer.appendChild(dot);
             });
-            const activeBtn = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
-            if(activeBtn) dashboardTitle.textContent = activeBtn.textContent;
+        }
 
-            switch (sectionId) {
-                case 'ordersSection': loadOrders(); break;
-                case 'customersSection': loadCustomers(); break;
-                case 'priceListSection': loadPriceList(); break;
-                case 'salesSection': loadSales(); break;
-            }
-        };
-        navButtons.forEach(btn => {
-            if(btn.dataset.section) {
-                btn.addEventListener('click', () => switchSection(btn.dataset.section));
-            }
-        });
+        // Fungsi untuk menampilkan slide tertentu
+        function showSlide(n) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                dotsContainer.children[i].classList.remove('active');
+            });
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            dotsContainer.children[currentSlide].classList.add('active');
+        }
 
-        // Pengaturan
-        const loadSettings = () => { /* ... kode tidak berubah ... */ };
-        saveSettingsBtn.addEventListener('click', () => { /* ... kode tidak berubah ... */ });
-
-        // Inisialisasi aplikasi
-        document.addEventListener('DOMContentLoaded', () => {
-            loadSettings();
-            checkAuthStatus();
-        });
+        // Fungsi untuk slide berikutnya
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
         
-        // =================================================================
-        // ===            BAGIAN YANG DIMODIFIKASI (END)                   ===
-        // =================================================================
+        // Fungsi untuk mereset interval auto-slide
+        function resetInterval() {
+            clearInterval(slideInterval);
+            slideInterval = setInterval(nextSlide, 5000); // Ganti slide setiap 5 detik
+        }
+        
+        // Inisialisasi slider
+        document.addEventListener('DOMContentLoaded', () => {
+            createDots();
+            showSlide(0);
+            resetInterval();
+        });
+
     </script>
 </body>
 </html>
