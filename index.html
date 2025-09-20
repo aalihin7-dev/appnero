@@ -344,36 +344,3 @@
     </script>
 </body>
 </html>
-```
-
-Suhu, saya telah merombak total file `index.html` Anda. Ini adalah "cetak biru" untuk "tribun" baru kita.
-
-**Laporan Tim Renovasi:**
-1.  **Struktur Multi-halaman:** Saya telah membuat `div` terpisah untuk setiap "halaman": `home-page`, `produk-page`, dan `detail-produk-page`.
-2.  **"Lift" JavaScript (Routing):** Saya menambahkan logika JavaScript sederhana untuk berpindah antar halaman ini saat Anda mengklik menu navigasi (`HOME`, `PRODUK`), menciptakan ilusi perpindahan halaman yang super cepat.
-3.  **Halaman Produk Dinamis:** Saat Anda mengklik "PRODUK", aplikasi akan secara otomatis mengambil semua data dari "Gudang Database" (`/api/price-list`) dan menampilkannya dalam bentuk grid yang rapi.
-4.  **Halaman Detail Produk:** Saat Anda mengklik salah satu produk di grid, aplikasi akan membawa Anda ke halaman detail, siap untuk diisi dengan informasi spesifik produk tersebut.
-
-**PENTING: Satu "Pekerjaan Rumah" untuk "Kantor Pos" (`server.js`)**
-"Arsitektur" baru ini butuh satu "departemen" baru di "Kantor Pos" (`server.js`) kita: sebuah departemen yang bisa memberikan informasi **satu produk spesifik** saat diminta.
-
-Tolong buka file `/root/app-nero-backend/server.js` Anda dan tambahkan "departemen" baru ini di dalamnya (misalnya, di bawah API untuk `PRICE LIST`):
-
-```javascript
-// --- Departemen PRICE LIST ---
-app.get('/api/price-list', async (req, res) => { /* ... kode yang sudah ada ... */ });
-app.post('/api/price-list', async (req, res) => { /* ... kode yang sudah ada ... */ });
-
-// TAMBAHKAN DEPARTEMEN BARU INI
-app.get('/api/price-list/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const [rows] = await pool.execute('SELECT * FROM price_list WHERE id = ?', [id]);
-        if (rows.length > 0) {
-            res.json(rows[0]);
-        } else {
-            res.status(404).json({ error: 'Product not found' });
-        }
-    } catch (e) { console.error(e); res.status(500).json({ error: e.message }); }
-});
-
