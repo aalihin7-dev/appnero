@@ -190,6 +190,8 @@
                     Unggah Pesanan
                 </button>
             </form>
+             <!-- Placeholder untuk pesan hasil upload -->
+            <div id="uploadResult" class="mt-4 text-center font-medium"></div>
         </div>
 
         <div class="mt-8 text-center">
@@ -352,16 +354,22 @@
     <div id="toast" class="toast"></div>
 
     <script type="module">
+        // --- KONFIGURASI SUPABASE (DATABASE & AUTH) ---
         const supabaseUrl = 'https://rgrajbbfleqvtsavrmcp.supabase.co'; 
-        // PENTING: Ganti placeholder di bawah ini dengan kunci 'anon' asli dari dasbor Supabase Anda
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJncmFqYmJmbGVxdnRzYXZybWNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk4NDYsImV4cCI6MjA3MDA1NTg0Nn0.3ihKh6zniO2hmFLB6A27H3KoeKzgUpguw2P0ofalG1k'; 
         
+        // --- KONFIGURASI NEXTCLOUD (STORAGE) ---
+        const nextcloudUrl = 'https://cloud.neroprinting.my.id/remote.php/dav/files/app_uploader/';
+        const nextcloudUser = 'app_uploader';
+        const nextcloudAppPassword = 'GQGfA-qrsd6-YgSHm-e6Nkr-jor9R'; // <-- PENTING: Ganti dengan App Password Anda!
+
         // Alamat server notifikasi Anda
         const notificationServerUrl = 'https://notif.neroprinting.my.id/send-notification';
 
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
         const supabase = createClient(supabaseUrl, supabaseKey);
         
+        // --- DEFINISI ELEMEN DOM ---
         const landingPage = document.getElementById('landingPage');
         const dashboard = document.getElementById('dashboard');
         const showLoginBtn = document.getElementById('showLoginBtn');
@@ -370,30 +378,27 @@
         const closeLoginModalBtn = document.getElementById('closeLoginModalBtn');
         const uploadForm = document.getElementById('uploadForm');
         const uploadButton = document.getElementById('uploadButton');
+        const uploadResult = document.getElementById('uploadResult');
         const logoutBtn = document.getElementById('logoutBtn');
         const navButtons = document.querySelectorAll('.nav-item');
         const sections = document.querySelectorAll('.section');
         const dashboardTitle = document.getElementById('dashboardTitle');
         const toast = document.getElementById('toast');
-        
-        // Pengaturan
         const companyNameEl = document.getElementById('companyName');
         const companyLogoEl = document.getElementById('companyLogo');
         const logoPlaceholderEl = document.getElementById('logoPlaceholder');
         const settingCompanyName = document.getElementById('settingCompanyName');
         const settingLogo = document.getElementById('settingLogo');
         const saveSettingsBtn = document.getElementById('saveSettingsBtn');
-        
-        // Daftar Harga
         const addPriceForm = document.getElementById('addPriceForm');
         const priceListContainer = document.getElementById('priceListContainer');
-        
-        // Penjualan Manual
         const showNewSaleModalBtn = document.getElementById('showNewSaleModalBtn');
         const newSaleModal = document.getElementById('newSaleModal');
         const closeNewSaleModalBtn = document.getElementById('closeNewSaleModalBtn');
         const newSaleForm = document.getElementById('newSaleForm');
         const salesListContainer = document.getElementById('salesListContainer');
+
+        // --- FUNGSI-FUNGSI UTAMA ---
 
         // Fungsi untuk menampilkan notifikasi toast
         const showToast = (message, type = 'success') => {
@@ -409,13 +414,123 @@
             container.innerHTML = '<div class="loader"></div>';
         };
 
+        // ===================================================================
+        // === BAGIAN YANG DIMODIFIKASI: FUNGSI UPLOAD KE NEXTCLOUD (START) ===
+        // ===================================================================
+
+        async function uploadToNextcloud(file) {
+            // Membuat nama file yang unik untuk menghindari tumpang tindih
+            const fileName = `${Date.now()}_${file.name}`;
+            const uploadUrl = `${nextcloudUrl}${fileName}`;
+
+            try {
+                const response = await fetch(uploadUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': 'Basic ' + btoa(`${nextcloudUser}:${nextcloudAppPassword}`),
+                        'Content-Type': file.type
+                    },
+                    body: file
+                });
+
+                if (response.ok) {
+                    console.log('File berhasil diunggah ke Nextcloud!');
+                    // Jika sukses, kembalikan nama file yang unik untuk disimpan di database
+                    return fileName; 
+                } else {
+                    // Jika gagal, lempar error agar bisa ditangkap oleh blok catch utama
+                    const errorText = await response.text();
+                    throw new Error(`Gagal mengunggah ke Nextcloud. Status: ${response.status}. Pesan: ${errorText}`);
+                }
+            } catch (error) {
+                // Jika ada error jaringan saat upload ke Nextcloud
+                throw new Error(`Error jaringan saat menghubungi Nextcloud: ${error.message}`);
+            }
+        }
+        
+        // Fungsi utama untuk menangani proses upload pesanan
+        const handleFileUpload = async (e) => {
+            e.preventDefault();
+            const customerName = document.getElementById('customerName').value;
+            const customerPhone = document.getElementById('customerPhone').value;
+            const file = document.getElementById('fileInput').files[0];
+
+            if (!file) {
+                showToast("Mohon pilih file terlebih dahulu.", 'error');
+                return;
+            }
+            
+            uploadButton.disabled = true;
+            uploadButton.textContent = 'Mengunggah...';
+            uploadResult.textContent = `Memproses pesanan untuk ${customerName}...`;
+
+            try {
+                // FASE 1: Unggah file ke Nextcloud dan dapatkan path-nya
+                uploadResult.textContent = `Mengunggah file ke server aman kami...`;
+                const nextcloudFilePath = await uploadToNextcloud(file);
+                console.log(`File tersimpan di Nextcloud dengan path: ${nextcloudFilePath}`);
+
+                // FASE 2: Simpan informasi pelanggan ke database Supabase
+                uploadResult.textContent = 'Menyimpan data pelanggan...';
+                const { error: customerError } = await supabase.from('customers').upsert({ phone: customerPhone, name: customerName }, { onConflict: 'phone' });
+                if (customerError) throw customerError;
+
+                // FASE 3: Simpan informasi pesanan (termasuk path Nextcloud) ke database Supabase
+                uploadResult.textContent = 'Menyimpan detail pesanan...';
+                const { error: orderError } = await supabase.from('orders').insert({
+                    customer_name: customerName,
+                    customer_phone: customerPhone,
+                    file_path: nextcloudFilePath, // Simpan path dari Nextcloud, bukan Supabase Storage
+                    status: 'pending'
+                });
+                if (orderError) throw orderError;
+                
+                showToast("Pesanan berhasil diunggah!");
+                uploadForm.reset();
+                uploadResult.textContent = `Terima kasih! Pesanan Anda telah kami terima.`;
+                
+                // FASE 4: Kirim notifikasi WhatsApp (opsional, jika sudah dikonfigurasi)
+                try {
+                    const notifResponse = await fetch(notificationServerUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: customerName, phone: customerPhone, fileName: file.name })
+                    });
+
+                    if(!notifResponse.ok){
+                        console.error('Gagal mengirim notifikasi, status:', notifResponse.status);
+                        showToast('Pesanan tersimpan, tapi notifikasi gagal dikirim.', 'error');
+                    }
+                } catch (notifError) {
+                    console.error('Gagal menghubungi server notifikasi:', notifError);
+                    showToast('Pesanan tersimpan, tapi server notifikasi tidak merespon.', 'error');
+                }
+
+            } catch (error) {
+                console.error('Proses unggah gagal:', error);
+                showToast(`Gagal: ${error.message}`, 'error');
+                uploadResult.textContent = `Terjadi kesalahan: ${error.message}`;
+            } finally {
+                uploadButton.disabled = false;
+                uploadButton.textContent = 'Unggah Pesanan';
+            }
+        };
+
+        // =================================================================
+        // === BAGIAN YANG DIMODIFIKASI: FUNGSI UPLOAD KE NEXTCLOUD (END) ===
+        // =================================================================
+
+        uploadForm.addEventListener('submit', handleFileUpload);
+        
+        // --- FUNGSI-FUNGSI LAINNYA (TIDAK BERUBAH) ---
+
         // Navigasi Dashboard
         const switchSection = (sectionId) => {
             sections.forEach(sec => sec.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
 
             navButtons.forEach(btn => {
-                 btn.classList.toggle('active', btn.dataset.section === sectionId);
+                btn.classList.toggle('active', btn.dataset.section === sectionId);
             });
             
             const activeBtn = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
@@ -436,65 +551,6 @@
             }
         });
         
-        // Logika file unggah
-        const handleFileUpload = async (e) => {
-            e.preventDefault();
-            const customerName = document.getElementById('customerName').value;
-            const customerPhone = document.getElementById('customerPhone').value;
-            const file = document.getElementById('fileInput').files[0];
-
-            if (!file) {
-                showToast("Mohon pilih file terlebih dahulu.", 'error');
-                return;
-            }
-            
-            uploadButton.disabled = true;
-            uploadButton.textContent = 'Mengunggah...';
-
-            try {
-                // 1. Simpan data pelanggan (upsert)
-                const { error: customerError } = await supabase.from('customers').upsert({ phone: customerPhone, name: customerName }, { onConflict: 'phone' });
-                if (customerError) throw customerError;
-
-                // 2. Unggah file ke Storage
-                const filePath = `orders/${Date.now()}_${file.name}`;
-                const { error: uploadError } = await supabase.storage.from('uploads').upload(filePath, file);
-                if (uploadError) throw uploadError;
-
-                // 3. Simpan data pesanan ke tabel
-                const { error: orderError } = await supabase.from('orders').insert({
-                    customer_name: customerName,
-                    customer_phone: customerPhone,
-                    file_path: filePath,
-                    status: 'pending'
-                });
-                if (orderError) throw orderError;
-                
-                showToast("Pesanan berhasil diunggah!");
-                uploadForm.reset();
-                
-                // 4. Kirim notifikasi WhatsApp
-                const notifResponse = await fetch(notificationServerUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: customerName, phone: customerPhone, fileName: file.name })
-                });
-
-                if(!notifResponse.ok){
-                    console.error('Gagal mengirim notifikasi, status:', notifResponse.status);
-                    showToast('Pesanan tersimpan, tapi notifikasi gagal dikirim.', 'error');
-                }
-
-            } catch (error) {
-                console.error('Proses unggah gagal:', error);
-                showToast(`Gagal: ${error.message}`, 'error');
-            } finally {
-                uploadButton.disabled = false;
-                uploadButton.textContent = 'Unggah Pesanan';
-            }
-        };
-        uploadForm.addEventListener('submit', handleFileUpload);
-
         // Otentikasi
         showLoginBtn.addEventListener('click', () => loginModal.style.display = 'flex');
         closeLoginModalBtn.addEventListener('click', () => loginModal.style.display = 'none');
@@ -521,7 +577,7 @@
             if (session) {
                 landingPage.style.display = 'none';
                 dashboard.style.display = 'flex';
-                switchSection('ordersSection'); // Tampilkan section pesanan saat login
+                switchSection('ordersSection');
             } else {
                 landingPage.style.display = 'flex';
                 dashboard.style.display = 'none';
@@ -558,7 +614,7 @@
             showToast("Pengaturan berhasil disimpan.");
         });
 
-        // Fungsi Memuat Data
+        // Fungsi Memuat Data dari Supabase
         async function loadOrders() {
             const container = document.getElementById('ordersList');
             showLoader(container);
@@ -691,4 +747,3 @@
     </script>
 </body>
 </html>
-
