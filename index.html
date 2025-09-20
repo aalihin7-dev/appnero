@@ -466,6 +466,7 @@ const handleFileUpload = async (e) => {
     } finally {
         uploadButton.disabled = false;
         uploadButton.textContent = 'Unggah Pesanan';
+        uploadForm.reset();
     }
 };
 
