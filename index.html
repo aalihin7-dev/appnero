@@ -12,11 +12,10 @@
         body {
             font-family: 'Poppins', sans-serif;
         }
-        /* Custom styles untuk slider */
         .slider-container {
             position: relative;
             width: 100%;
-            height: 85vh; /* Tinggi slider */
+            height: 85vh;
             overflow: hidden;
         }
         .slide {
@@ -53,11 +52,22 @@
         .dot.active {
             background-color: white;
         }
+        .product-card:hover .add-to-cart {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Page transition styles */
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-100">
 
-    <!-- HEADER -->
+    <!-- HEADER (Sama untuk semua halaman) -->
     <header class="bg-white shadow-md sticky top-0 z-50">
         <!-- Top Bar -->
         <div class="bg-gray-100 text-gray-600 text-sm py-2 px-6">
@@ -65,43 +75,47 @@
                 <div>
                     <span>nerostore</span> | <span>Hubungi kami: 6282177576869</span>
                 </div>
-                <div>
-                    <a href="#" class="hover:text-purple-600">Akun Saya ▼</a>
+                <div class="relative group">
+                    <a href="#" class="hover:text-purple-600 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                        </svg>
+                        Akun Saya ▼
+                    </a>
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Login</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Daftar Akun</a>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Main Navigation -->
         <nav class="container mx-auto flex items-center justify-between p-4">
-            <!-- Logo -->
             <a href="#" class="flex items-center space-x-2">
-                <!-- Anda bisa ganti dengan tag <img> untuk logo asli -->
                 <span class="text-xl font-bold text-gray-800 bg-gray-200 px-3 py-1 rounded">ATK</span>
             </a>
             
-            <!-- Menu Items (Desktop) -->
             <div class="hidden md:flex items-center space-x-6">
-                <a href="#" class="text-gray-600 hover:text-purple-600 font-medium">HOME</a>
-                <a href="#" class="text-gray-600 hover:text-purple-600 font-medium">PRODUK</a>
-                <a href="#" class="text-gray-600 hover:text-purple-600 font-medium">BLOG</a>
-                <a href="#" class="text-gray-600 hover:text-purple-600 font-medium">KONTAK</a>
+                <a href="#home" class="nav-link text-gray-600 hover:text-purple-600 font-medium">HOME</a>
+                <a href="#produk" class="nav-link text-gray-600 hover:text-purple-600 font-medium">PRODUK</a>
+                <a href="#blog" class="nav-link text-gray-600 hover:text-purple-600 font-medium">BLOG</a>
+                <a href="#kontak" class="nav-link text-gray-600 hover:text-purple-600 font-medium">KONTAK</a>
             </div>
 
-            <!-- Search and Cart -->
             <div class="flex items-center space-x-4">
                 <div class="relative hidden sm:block">
                     <input type="text" placeholder="Cari Produk..." class="border rounded-full py-2 px-4 w-40 focus:outline-none focus:ring-2 focus:ring-purple-400">
                 </div>
                 <button class="bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-purple-700 hidden sm:block">CARI</button>
-                <a href="#" class="relative">
+                <a href="#keranjang" class="relative nav-link">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                    <span class="absolute -top-2 -right-2 bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
                 </a>
             </div>
             
-            <!-- Hamburger Menu (Mobile) -->
             <div class="md:hidden">
                 <button>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -112,65 +126,90 @@
         </nav>
     </header>
 
-    <!-- MAIN CONTENT -->
+    <!-- MAIN CONTENT CONTAINER -->
     <main>
-        <!-- Hero Slider Section -->
-        <section class="slider-container">
-            <!-- Slide 1 -->
-            <div class="slide active">
-                <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=2084&auto=format&fit=crop" alt="Office Stationery">
-                <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-                    <div class="text-center text-white p-4">
-                        <p class="text-lg tracking-widest">ATK</p>
-                        <h1 class="text-4xl md:text-6xl font-bold my-4">OFFICE STATIONERY</h1>
-                        <button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 transition duration-300">
-                            BELANJA SEKARANG
-                        </button>
+        
+        <!-- HALAMAN 1: HOME -->
+        <div id="home-page" class="page active">
+            <section class="slider-container">
+                <div class="slide active">
+                    <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=2084&auto=format&fit=crop" alt="Office Stationery">
+                    <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                        <div class="text-center text-white p-4">
+                            <p class="text-lg tracking-widest">ATK</p>
+                            <h1 class="text-4xl md:text-6xl font-bold my-4">OFFICE STATIONERY</h1>
+                            <button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 transition duration-300">
+                                BELANJA SEKARANG
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <!-- Slide 2 -->
-            <div class="slide">
-                <img src="https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?q=80&w=1974&auto=format&fit=crop" alt="Peralatan Kantor">
-                <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-                    <div class="text-center text-white p-4">
-                        <p class="text-lg tracking-widest">PERCETAKAN</p>
-                        <h1 class="text-4xl md:text-6xl font-bold my-4">SOLUSI CETAK ANDA</h1>
-                        <button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 transition duration-300">
-                            LIHAT PRODUK
-                        </button>
+                <div class="slide">
+                    <img src="https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?q=80&w=1974&auto=format&fit=crop" alt="Peralatan Kantor">
+                    <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                         <div class="text-center text-white p-4">
+                            <p class="text-lg tracking-widest">PERCETAKAN</p>
+                            <h1 class="text-4xl md:text-6xl font-bold my-4">SOLUSI CETAK ANDA</h1>
+                            <button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 transition duration-300">
+                                LIHAT PRODUK
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Slider Controls -->
-            <div class="slider-dots"></div>
-        </section>
+                <div class="slider-dots"></div>
+            </section>
+        </div>
 
-        <!-- Product Section (Placeholder) -->
-        <section class="container mx-auto py-16 px-4">
-            <h2 class="text-3xl font-bold text-center mb-8">Produk Terlaris</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                <!-- Contoh Kartu Produk -->
-                <div class="bg-white rounded-lg shadow-md p-4 text-center">
-                    <p class="text-gray-500">Produk akan ditampilkan di sini...</p>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-4 text-center">
-                    <p class="text-gray-500">Produk akan ditampilkan di sini...</p>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-4 text-center">
-                    <p class="text-gray-500">Produk akan ditampilkan di sini...</p>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-4 text-center">
-                    <p class="text-gray-500">Produk akan ditampilkan di sini...</p>
+        <!-- HALAMAN 2: DAFTAR PRODUK -->
+        <div id="produk-page" class="page">
+             <div class="container mx-auto py-8 px-4 flex">
+                <!-- Sidebar Filter -->
+                <aside class="w-1/4 pr-8 hidden md:block">
+                    <h3 class="font-bold text-lg mb-4">FILTER</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-semibold mb-2">TIPE</h4>
+                            <ul>
+                                <li><a href="#" class="text-gray-600 hover:text-purple-600">Semua Tipe</a></li>
+                                <li><a href="#" class="text-gray-600 hover:text-purple-600">Item</a></li>
+                                <li><a href="#" class="text-gray-600 hover:text-purple-600">Jasa</a></li>
+                            </ul>
+                        </div>
+                         <div>
+                            <h4 class="font-semibold mb-2">JENIS</h4>
+                            <ul>
+                                <li><a href="#" class="text-gray-600 hover:text-purple-600">Alat Tulis Kantor</a></li>
+                                <li><a href="#" class="text-gray-600 hover:text-purple-600">Banner</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </aside>
+                <!-- Product Grid -->
+                <section class="w-full md:w-3/4">
+                    <div class="flex justify-between items-center mb-4">
+                        <p class="text-gray-600">Menampilkan <span id="product-count">0</span> Produk</p>
+                        <div>{...}</div>
+                    </div>
+                    <div id="all-products-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Daftar produk akan dimuat di sini -->
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- HALAMAN 3: DETAIL PRODUK -->
+        <div id="detail-produk-page" class="page">
+            <div class="container mx-auto py-12 px-4">
+                <div id="product-detail-content" class="bg-white p-8 rounded-lg shadow-lg flex flex-col md:flex-row gap-8">
+                    <!-- Konten detail produk akan dimuat di sini -->
                 </div>
             </div>
-        </section>
-
+        </div>
+        
     </main>
     
     <!-- Floating Action Buttons -->
-    <div class="fixed bottom-4 right-4 flex flex-col space-y-3">
+    <div class="fixed bottom-4 right-4 flex flex-col space-y-3 z-40">
         <button class="bg-purple-600 text-white h-12 w-12 rounded-full flex items-center justify-center shadow-lg hover:bg-purple-700">
              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
         </button>
@@ -181,56 +220,160 @@
 
 
     <script>
-        // --- LOGIKA UNTUK SLIDER ---
+        // --- LOGIKA SPA (Single Page Application) & ROUTING ---
+        const pages = document.querySelectorAll('.page');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        function navigateTo(pageId) {
+            pages.forEach(page => {
+                page.classList.toggle('active', page.id === pageId);
+            });
+            window.scrollTo(0, 0);
+        }
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = link.getAttribute('href').substring(1) + '-page';
+                navigateTo(pageId);
+                // Muat data jika navigasi ke halaman produk
+                if (pageId === 'produk-page') {
+                    loadAllProducts();
+                }
+            });
+        });
+        
+        // --- LOGIKA SLIDER (Sama seperti sebelumnya) ---
         const slides = document.querySelectorAll('.slide');
         const dotsContainer = document.querySelector('.slider-dots');
         let currentSlide = 0;
         let slideInterval;
+        function createDots(){/*...kode slider...*/};
+        function showSlide(n){/*...kode slider...*/};
+        function nextSlide(){/*...kode slider...*/};
+        function resetInterval(){/*...kode slider...*/};
 
-        // Membuat dots berdasarkan jumlah slide
-        function createDots() {
-            slides.forEach((_, i) => {
-                const dot = document.createElement('div');
-                dot.classList.add('dot');
-                if (i === 0) dot.classList.add('active');
-                dot.addEventListener('click', () => {
-                    showSlide(i);
-                    resetInterval();
-                });
-                dotsContainer.appendChild(dot);
-            });
+        // --- LOGIKA PRODUK ---
+        const backendApiUrl = '/api';
+        const allProductsContainer = document.getElementById('all-products-container');
+        const productDetailContent = document.getElementById('product-detail-content');
+
+        async function fetchProducts() {
+            try {
+                const response = await fetch(`${backendApiUrl}/price-list`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error("Gagal mengambil data produk:", error);
+                return [];
+            }
         }
 
-        // Fungsi untuk menampilkan slide tertentu
-        function showSlide(n) {
-            slides.forEach((slide, i) => {
-                slide.classList.remove('active');
-                dotsContainer.children[i].classList.remove('active');
-            });
-            currentSlide = (n + slides.length) % slides.length;
-            slides[currentSlide].classList.add('active');
-            dotsContainer.children[currentSlide].classList.add('active');
+        async function loadAllProducts() {
+            allProductsContainer.innerHTML = `<p class="text-center col-span-full">Memuat produk...</p>`;
+            const products = await fetchProducts();
+            
+            document.getElementById('product-count').textContent = products.length;
+
+            if (products.length === 0) {
+                allProductsContainer.innerHTML = `<p class="text-center col-span-full">Belum ada produk.</p>`;
+                return;
+            }
+            
+            allProductsContainer.innerHTML = products.map(p => `
+                <div class="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer" onclick="showProductDetail(${p.id})">
+                    <div class="h-48 bg-gray-200"></div>
+                    <div class="p-4">
+                        <h3 class="font-semibold truncate">${p.product_name}</h3>
+                        <p class="text-purple-600 font-bold">Rp ${p.price.toLocaleString('id-ID')}</p>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        // Fungsi untuk slide berikutnya
-        function nextSlide() {
-            showSlide(currentSlide + 1);
+        async function showProductDetail(productId) {
+            productDetailContent.innerHTML = `<p>Memuat detail produk...</p>`;
+            navigateTo('detail-produk-page');
+            
+            // NOTE: Kita butuh endpoint baru di backend: /api/price-list/:id
+            try {
+                const response = await fetch(`${backendApiUrl}/price-list/${productId}`);
+                if (!response.ok) throw new Error('Produk tidak ditemukan');
+                const product = await response.json();
+
+                productDetailContent.innerHTML = `
+                    <!-- Kolom Gambar -->
+                    <div class="w-full md:w-1/2">
+                        <div class="bg-gray-200 h-96 rounded-lg flex items-center justify-center">
+                            <span class="text-gray-400">Gambar Utama</span>
+                        </div>
+                        <div class="flex space-x-2 mt-4">
+                             <div class="w-20 h-20 bg-gray-200 rounded-md"></div>
+                        </div>
+                    </div>
+                    <!-- Kolom Detail -->
+                    <div class="w-full md:w-1/2">
+                        <h2 class="text-3xl font-bold">${product.product_name}</h2>
+                        <p class="text-2xl text-purple-600 font-bold my-4">Rp ${product.price.toLocaleString('id-ID')}</p>
+                        <p class="text-sm text-green-600 font-semibold">Stok tersedia</p>
+                        <div class="mt-6 flex items-center space-x-4">
+                            <input type="number" value="1" class="border rounded-md w-20 p-2 text-center">
+                            <button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 flex-grow">
+                                TAMBAH KE KERANJANG
+                            </button>
+                        </div>
+                        <div class="mt-8 text-gray-600">
+                             <h4 class="font-semibold">Detail Produk:</h4>
+                             <p>Deskripsi detail produk akan ditampilkan di sini. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                productDetailContent.innerHTML = `<p class="text-red-500">${error.message}</p>`;
+            }
         }
         
-        // Fungsi untuk mereset interval auto-slide
-        function resetInterval() {
-            clearInterval(slideInterval);
-            slideInterval = setInterval(nextSlide, 5000); // Ganti slide setiap 5 detik
-        }
-        
-        // Inisialisasi slider
+        // Inisialisasi Aplikasi
         document.addEventListener('DOMContentLoaded', () => {
             createDots();
             showSlide(0);
             resetInterval();
+            navigateTo('home-page');
         });
 
     </script>
 </body>
 </html>
+```
+
+Suhu, saya telah merombak total file `index.html` Anda. Ini adalah "cetak biru" untuk "tribun" baru kita.
+
+**Laporan Tim Renovasi:**
+1.  **Struktur Multi-halaman:** Saya telah membuat `div` terpisah untuk setiap "halaman": `home-page`, `produk-page`, dan `detail-produk-page`.
+2.  **"Lift" JavaScript (Routing):** Saya menambahkan logika JavaScript sederhana untuk berpindah antar halaman ini saat Anda mengklik menu navigasi (`HOME`, `PRODUK`), menciptakan ilusi perpindahan halaman yang super cepat.
+3.  **Halaman Produk Dinamis:** Saat Anda mengklik "PRODUK", aplikasi akan secara otomatis mengambil semua data dari "Gudang Database" (`/api/price-list`) dan menampilkannya dalam bentuk grid yang rapi.
+4.  **Halaman Detail Produk:** Saat Anda mengklik salah satu produk di grid, aplikasi akan membawa Anda ke halaman detail, siap untuk diisi dengan informasi spesifik produk tersebut.
+
+**PENTING: Satu "Pekerjaan Rumah" untuk "Kantor Pos" (`server.js`)**
+"Arsitektur" baru ini butuh satu "departemen" baru di "Kantor Pos" (`server.js`) kita: sebuah departemen yang bisa memberikan informasi **satu produk spesifik** saat diminta.
+
+Tolong buka file `/root/app-nero-backend/server.js` Anda dan tambahkan "departemen" baru ini di dalamnya (misalnya, di bawah API untuk `PRICE LIST`):
+
+```javascript
+// --- Departemen PRICE LIST ---
+app.get('/api/price-list', async (req, res) => { /* ... kode yang sudah ada ... */ });
+app.post('/api/price-list', async (req, res) => { /* ... kode yang sudah ada ... */ });
+
+// TAMBAHKAN DEPARTEMEN BARU INI
+app.get('/api/price-list/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [rows] = await pool.execute('SELECT * FROM price_list WHERE id = ?', [id]);
+        if (rows.length > 0) {
+            res.json(rows[0]);
+        } else {
+            res.status(404).json({ error: 'Product not found' });
+        }
+    } catch (e) { console.error(e); res.status(500).json({ error: e.message }); }
+});
 
