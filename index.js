@@ -19,7 +19,7 @@ app.use(express.json());
 
 app.post('/send-notification', async (req, res) => {
     const { name, phone, fileName } = req.body;
-    const teamPhoneNumber = '15558749784'; 
+    const teamPhoneNumber = '15558749784'; git pull origin main
 
     // Menyiapkan data untuk dikirim ke WATI API
     const requestBody = {

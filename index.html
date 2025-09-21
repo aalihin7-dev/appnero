@@ -9,278 +9,88 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-        .slider-container {
-            position: relative;
-            width: 100%;
-            height: 85vh;
-            overflow: hidden;
-        }
-        .slide {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-        }
-        .slide.active {
-            opacity: 1;
-        }
-        .slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .slider-dots {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-        }
-        .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.5);
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .dot.active {
-            background-color: white;
-        }
-        .product-card:hover .add-to-cart {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        /* Page transition styles */
-        .page {
-            display: none;
-        }
-        .page.active {
-            display: block;
-        }
+        body { font-family: 'Poppins', sans-serif; }
+        .slider-container { position: relative; width: 100%; height: 85vh; overflow: hidden; }
+        .slide { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 1s ease-in-out; }
+        .slide.active { opacity: 1; }
+        .slide img { width: 100%; height: 100%; object-fit: cover; }
+        .slider-dots { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.5); cursor: pointer; transition: background-color 0.3s; }
+        .dot.active { background-color: white; }
+        .page { display: none; }
+        .page.active { display: block; }
     </style>
 </head>
 <body class="bg-gray-100">
 
-    <!-- HEADER (Sama untuk semua halaman) -->
     <header class="bg-white shadow-md sticky top-0 z-50">
-        <!-- Top Bar -->
-        <div class="bg-gray-100 text-gray-600 text-sm py-2 px-6">
-            <div class="container mx-auto flex justify-between items-center">
-                <div>
-                    <span>nerostore</span> | <span>Hubungi kami: 6282177576869</span>
-                </div>
-                <div class="relative group">
-                    <a href="#" class="nav-link hover:text-purple-600 flex items-center" data-target="akun-page">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                          <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                        </svg>
-                        Akun Saya ▼
-                    </a>
-                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <a href="#login" class="nav-link block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-target="akun-page">Login</a>
-                        <a href="#daftar" class="nav-link block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-target="akun-page">Daftar Akun</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Navigation -->
         <nav class="container mx-auto flex items-center justify-between p-4">
             <a href="#home" class="nav-link flex items-center space-x-2" data-target="home-page">
-                <span class="text-xl font-bold text-gray-800 bg-gray-200 px-3 py-1 rounded">ATK</span>
+                <span class="text-xl font-bold text-gray-800">NERO STORE</span>
             </a>
-            
             <div class="hidden md:flex items-center space-x-6">
                 <a href="#home" class="nav-link text-gray-600 hover:text-purple-600 font-medium" data-target="home-page">HOME</a>
                 <a href="#produk" class="nav-link text-gray-600 hover:text-purple-600 font-medium" data-target="produk-page">PRODUK</a>
-                <a href="#blog" class="nav-link text-gray-600 hover:text-purple-600 font-medium" data-target="blog-page">BLOG</a>
-                <a href="#kontak" class="nav-link text-gray-600 hover:text-purple-600 font-medium" data-target="kontak-page">KONTAK</a>
             </div>
-
             <div class="flex items-center space-x-4">
-                <div class="relative hidden sm:block">
-                    <input type="text" placeholder="Cari Produk..." class="border rounded-full py-2 px-4 w-40 focus:outline-none focus:ring-2 focus:ring-purple-400">
-                </div>
-                <button class="bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-purple-700 hidden sm:block">CARI</button>
                 <a href="#keranjang" class="relative nav-link" data-target="keranjang-page">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                     <span id="cart-count" class="absolute -top-2 -right-2 bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
                 </a>
             </div>
-            
-            <div class="md:hidden">
-                <button>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-                    </svg>
-                </button>
-            </div>
         </nav>
     </header>
 
-    <!-- MAIN CONTENT CONTAINER -->
     <main>
         
-        <!-- HALAMAN 1: HOME -->
         <div id="home-page" class="page">
             <section class="slider-container">
                 <div class="slide active">
                     <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=2084&auto=format&fit=crop" alt="Office Stationery">
                     <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
                         <div class="text-center text-white p-4">
-                            <p class="text-lg tracking-widest">ATK</p>
-                            <h1 class="text-4xl md:text-6xl font-bold my-4">OFFICE STATIONERY</h1>
-                            <button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 transition duration-300 nav-link" data-target="produk-page">
-                                BELANJA SEKARANG
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide">
-                    <img src="https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?q=80&w=1974&auto=format&fit=crop" alt="Peralatan Kantor">
-                    <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-                         <div class="text-center text-white p-4">
-                            <p class="text-lg tracking-widest">PERCETAKAN</p>
-                            <h1 class="text-4xl md:text-6xl font-bold my-4">SOLUSI CETAK ANDA</h1>
+                            <h1 class="text-4xl md:text-6xl font-bold my-4">SOLUSI KEBUTUHAN KANTOR & PERCETAKAN</h1>
                             <button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 transition duration-300 nav-link" data-target="produk-page">
                                 LIHAT PRODUK
                             </button>
                         </div>
                     </div>
                 </div>
-                <div class="slider-dots"></div>
             </section>
         </div>
 
-        <!-- HALAMAN 2: DAFTAR PRODUK -->
         <div id="produk-page" class="page">
-             <div class="container mx-auto py-8 px-4 flex flex-col md:flex-row">
-                <!-- Sidebar Filter -->
-                <aside class="w-full md:w-1/4 md:pr-8 mb-8 md:mb-0">
-                    <h3 class="font-bold text-lg mb-4 border-b pb-2">FILTER</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <h4 class="font-semibold mb-2">TIPE</h4>
-                            <ul>
-                                <li><a href="#" class="text-gray-600 hover:text-purple-600">Semua Tipe</a></li>
-                                <li><a href="#" class="text-gray-600 hover:text-purple-600">Item</a></li>
-                                <li><a href="#" class="text-gray-600 hover:text-purple-600">Jasa</a></li>
-                            </ul>
-                        </div>
-                         <div>
-                            <h4 class="font-semibold mb-2 mt-4">JENIS</h4>
-                            <ul>
-                                <li><a href="#" class="text-gray-600 hover:text-purple-600">Alat Tulis Kantor</a></li>
-                                <li><a href="#" class="text-gray-600 hover:text-purple-600">Banner</a></li>
-                            </ul>
-                        </div>
+              <div class="container mx-auto py-8 px-4">
+                <h2 class="text-3xl font-bold text-center mb-8">Produk Kami</h2>
+                <div id="all-products-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                     </div>
-                </aside>
-                <!-- Product Grid -->
-                <section class="w-full md:w-3/4">
-                    <div class="flex justify-between items-center mb-4 border-b pb-2">
-                        <p class="text-gray-600">Menampilkan <span id="product-count">0</span> Produk</p>
-                        <!-- Sorting dropdown placeholder -->
-                    </div>
-                    <div id="all-products-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <!-- Daftar produk akan dimuat di sini -->
-                    </div>
-                </section>
-            </div>
+              </div>
         </div>
 
-        <!-- HALAMAN 3: DETAIL PRODUK -->
         <div id="detail-produk-page" class="page">
             <div class="container mx-auto py-12 px-4">
                  <p class="mb-4"><a href="#produk" class="nav-link text-purple-600 hover:underline" data-target="produk-page"> &larr; Kembali ke Produk</a></p>
-                <div id="product-detail-content" class="bg-white p-8 rounded-lg shadow-lg flex flex-col md:flex-row gap-8">
-                    <!-- Konten detail produk akan dimuat di sini -->
-                </div>
-            </div>
-        </div>
-
-        <!-- HALAMAN 4: AKUN (LOGIN/DAFTAR) -->
-        <div id="akun-page" class="page">
-            <div class="container mx-auto py-16 px-4 flex justify-center">
-                <div class="w-full max-w-md">
-                    <div class="bg-white p-8 rounded-lg shadow-lg">
-                        <h2 class="text-2xl font-bold text-center mb-6">Akun Saya</h2>
-                        <!-- Form Login -->
-                        <form id="login-form">
-                             <h3 class="text-xl font-semibold mb-4">Login</h3>
-                             <div class="mb-4">
-                                <label for="login-email" class="block text-gray-700">Email</label>
-                                <input type="email" id="login-email" class="w-full border rounded-md p-2 mt-1">
-                             </div>
-                             <div class="mb-4">
-                                <label for="login-password" class="block text-gray-700">Password</label>
-                                <input type="password" id="login-password" class="w-full border rounded-md p-2 mt-1">
-                             </div>
-                             <button type="submit" class="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700">Login</button>
-                        </form>
-                        <hr class="my-8">
-                        <!-- Form Daftar Akun -->
-                        <form id="register-form">
-                            <h3 class="text-xl font-semibold mb-4">Daftar Akun Baru</h3>
-                             <div class="mb-4">
-                                <label for="register-name" class="block text-gray-700">Nama Lengkap</label>
-                                <input type="text" id="register-name" class="w-full border rounded-md p-2 mt-1">
-                             </div>
-                             <div class="mb-4">
-                                <label for="register-email" class="block text-gray-700">Email</label>
-                                <input type="email" id="register-email" class="w-full border rounded-md p-2 mt-1">
-                             </div>
-                             <div class="mb-4">
-                                <label for="register-password" class="block text-gray-700">Password</label>
-                                <input type="password" id="register-password" class="w-full border rounded-md p-2 mt-1">
-                             </div>
-                             <button type="submit" class="w-full bg-gray-600 text-white py-2 rounded-md hover:bg-gray-700">Daftar</button>
-                        </form>
+                <div id="product-detail-content" class="bg-white p-8 rounded-lg shadow-lg">
                     </div>
-                </div>
             </div>
         </div>
         
     </main>
     
-    <!-- Floating Action Buttons -->
-    <div class="fixed bottom-4 right-4 flex flex-col space-y-3 z-40">
-       <button class="bg-purple-600 text-white h-12 w-12 rounded-full flex items-center justify-center shadow-lg hover:bg-purple-700">
-             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
-        </button>
-        <button class="bg-pink-500 text-white h-12 w-12 rounded-full flex items-center justify-center shadow-lg hover:bg-pink-600">
-             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-        </button>
-    </div>
-
-
     <script>
         // --- LOGIKA SPA (Single Page Application) & ROUTING ---
         const pages = document.querySelectorAll('.page');
         const navLinks = document.querySelectorAll('.nav-link');
 
         function navigateTo(pageId) {
-            // Sembunyikan semua halaman
             pages.forEach(page => page.classList.remove('active'));
-            
-            // Tampilkan halaman yang dituju
             const targetPage = document.getElementById(pageId);
             if (targetPage) {
                 targetPage.classList.add('active');
             } else {
-                // Jika tidak ditemukan, kembali ke home
                 document.getElementById('home-page').classList.add('active');
             }
-            
             window.scrollTo(0, 0);
-
-            // Muat data yang relevan untuk halaman tersebut
             if (pageId === 'produk-page') {
                 loadAllProducts();
             }
@@ -289,30 +99,39 @@
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const targetPageId = link.dataset.target || link.getAttribute('href').substring(1) + '-page';
+                const targetPageId = link.dataset.target;
                 navigateTo(targetPageId);
             });
         });
-        
-        // --- LOGIKA SLIDER ---
-        const slides = document.querySelectorAll('.slide');
-        const dotsContainer = document.querySelector('.slider-dots');
-        let currentSlide = 0;
-        let slideInterval;
-        function createDots(){ if (!dotsContainer) return; dotsContainer.innerHTML = ''; slides.forEach((_, i) => { const dot = document.createElement('div'); dot.classList.add('dot'); if (i === 0) dot.classList.add('active'); dot.addEventListener('click', () => { showSlide(i); resetInterval(); }); dotsContainer.appendChild(dot); }); }
-        function showSlide(n){ if (slides.length === 0) return; slides.forEach((slide, i) => { slide.classList.remove('active'); if(dotsContainer && dotsContainer.children[i]) dotsContainer.children[i].classList.remove('active'); }); currentSlide = (n + slides.length) % slides.length; slides[currentSlide].classList.add('active'); if(dotsContainer && dotsContainer.children[currentSlide]) dotsContainer.children[currentSlide].classList.add('active'); }
-        function nextSlide() { showSlide(currentSlide + 1); }
-        function resetInterval() { clearInterval(slideInterval); slideInterval = setInterval(nextSlide, 5000); }
 
         // --- LOGIKA PRODUK ---
+
+        // --- PERUBAHAN 1: Definisikan URL API Strapi Anda di satu tempat ---
+        const STRAPI_API_URL = 'https://cms.neroprinting.my.id/api';
+        const STRAPI_BASE_URL = 'https://cms.neroprinting.my.id';
+
         const allProductsContainer = document.getElementById('all-products-container');
         const productDetailContent = document.getElementById('product-detail-content');
+        
+        // --- PERUBAHAN 2: Fungsi bantuan untuk mendapatkan URL gambar dari Strapi ---
+        function getStrapiMediaUrl(mediaObject, size = 'small') {
+            const placeholder = 'https://via.placeholder.com/400x400.png?text=Gambar+Tidak+Tersedia';
+            if (!mediaObject || !mediaObject.data) {
+                return placeholder;
+            }
+            const attributes = mediaObject.data.attributes;
+            const url = attributes.formats?.[size]?.url || attributes.url;
+            return url.startsWith('http') ? url : `${STRAPI_BASE_URL}${url}`;
+        }
+
 
         async function fetchProducts() {
             try {
-                const response = await fetch(`https://api.neroprinting.my.id/price-list`);
+                // --- PERUBAHAN 3: URL API diubah ke Strapi & ditambah `populate` ---
+                const response = await fetch(`${STRAPI_API_URL}/produks?populate=*`);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return await response.json();
+                const result = await response.json();
+                return result.data; // Data produk ada di dalam properti .data
             } catch (error) {
                 console.error("Gagal mengambil data produk:", error);
                 return [];
@@ -323,25 +142,31 @@
             allProductsContainer.innerHTML = `<p class="text-center col-span-full">Memuat produk...</p>`;
             const products = await fetchProducts();
             
-            const productCountEl = document.getElementById('product-count');
-            if(productCountEl) productCountEl.textContent = products.length;
-
-            if (products.length === 0) {
+            if (!products || products.length === 0) {
                 allProductsContainer.innerHTML = `<p class="text-center col-span-full">Belum ada produk.</p>`;
                 return;
             }
             
-            allProductsContainer.innerHTML = products.map(p => `
-                <div class="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer group" onclick="showProductDetail(${p.id})">
-                    <div class="h-48 bg-gray-200 flex items-center justify-center">
-                        <span class="text-gray-400">Gambar Produk</span>
+            // --- PERUBAHAN 4: Tampilan kartu produk diupdate total ---
+            allProductsContainer.innerHTML = products.map(product => {
+                const p = product.attributes;
+                const imageUrl = getStrapiMediaUrl(p.gambar, 'small');
+                const kategori = p.kategori?.data?.attributes?.nama_kategori || 'Tanpa Kategori';
+
+                return `
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer group transition-transform duration-300 hover:scale-105" onclick="showProductDetail(${product.id})">
+                        <div class="h-48 w-full overflow-hidden">
+                             <img src="${imageUrl}" alt="${p.nama_produk}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="p-4">
+                            <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">${kategori}</span>
+                            <h3 class="font-semibold truncate mt-2 text-lg">${p.nama_produk}</h3>
+                            <p class="text-sm text-gray-500">${p.kode_item}</p>
+                            <p class="text-purple-600 font-bold mt-2">Rp ${p.harga.toLocaleString('id-ID')}</p>
+                        </div>
                     </div>
-                    <div class="p-4">
-                        <h3 class="font-semibold truncate">${p.product_name}</h3>
-                        <p class="text-purple-600 font-bold">Rp ${p.price.toLocaleString('id-ID')}</p>
-                    </div>
-                </div>
-            `).join('');
+                `
+            }).join('');
         }
 
         async function showProductDetail(productId) {
@@ -349,32 +174,58 @@
             navigateTo('detail-produk-page');
             
             try {
-                const response = await fetch(`https://api.neroprinting.my.id/price-list/${productId}`);
+                // --- PERUBAHAN 5: URL API Detail diubah ke Strapi & ditambah `populate` ---
+                const response = await fetch(`${STRAPI_API_URL}/produks/${productId}?populate=*`);
                 if (!response.ok) throw new Error('Produk tidak ditemukan');
-                const product = await response.json();
+                
+                const result = await response.json();
+                const product = result.data;
+                const p = product.attributes;
 
+                const imageUrl = getStrapiMediaUrl(p.gambar, 'medium');
+                const kategori = p.kategori?.data?.attributes?.nama_kategori || 'Tanpa Kategori';
+
+                // --- PERUBAHAN 6: Tampilan detail produk diupdate total ---
                 productDetailContent.innerHTML = `
-                    <div class="w-full md:w-1/2">
-                        <div class="bg-gray-200 h-96 rounded-lg flex items-center justify-center">
-                            <span class="text-gray-400">Gambar Utama</span>
+                    <div class="flex flex-col md:flex-row gap-8">
+                        <div class="w-full md:w-1/2">
+                            <img src="${imageUrl}" alt="${p.nama_produk}" class="w-full h-auto object-cover rounded-lg shadow-md">
                         </div>
-                        <div class="flex space-x-2 mt-4">
-                             <div class="w-20 h-20 bg-gray-200 rounded-md"></div>
-                        </div>
-                    </div>
-                    <div class="w-full md:w-1/2">
-                        <h2 class="text-3xl font-bold">${product.product_name}</h2>
-                        <p class="text-2xl text-purple-600 font-bold my-4">Rp ${product.price.toLocaleString('id-ID')}</p>
-                        <p class="text-sm text-green-600 font-semibold">Stok tersedia</p>
-                        <div class="mt-6 flex items-center space-x-4">
-                            <input type="number" value="1" class="border rounded-md w-20 p-2 text-center">
-                            <button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 flex-grow">
-                                TAMBAH KE KERANJANG
-                            </button>
-                        </div>
-                        <div class="mt-8 text-gray-600">
-                             <h4 class="font-semibold">Detail Produk:</h4>
-                             <p>Deskripsi detail produk akan ditampilkan di sini. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                        <div class="w-full md:w-1/2">
+                            <span class="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-full">${kategori}</span>
+                            <h2 class="text-4xl font-bold mt-2">${p.nama_produk}</h2>
+                            <p class="text-lg text-gray-500 mt-1 mb-4">${p.kode_item}</p>
+                            
+                            <p class="text-3xl text-purple-600 font-bold my-4">Rp ${p.harga.toLocaleString('id-ID')}</p>
+                            
+                            <div class="prose mt-6">
+                                ${p.deskripsi}
+                            </div>
+                            
+                            ${ p.daftar_varian && p.daftar_varian.length > 0 ? `
+                            <div class="mt-6">
+                                <h4 class="font-semibold text-lg">Varian Tersedia:</h4>
+                                <ul class="list-disc list-inside mt-2 text-gray-700">
+                                    ${p.daftar_varian.map(v => `<li>${v.atribut}: ${v.nilai} (Stok: ${v.stok})</li>`).join('')}
+                                </ul>
+                            </div>
+                            ` : ''}
+
+                            ${ p.daftar_harga && p.daftar_harga.length > 0 ? `
+                            <div class="mt-6">
+                                <h4 class="font-semibold text-lg">Harga Grosir:</h4>
+                                <ul class="list-disc list-inside mt-2 text-gray-700">
+                                     ${p.daftar_harga.map(h => `<li>Min. ${h.jumlah_minimum} pcs: Rp ${h.harga_satuan.toLocaleString('id-ID')} / pcs</li>`).join('')}
+                                </ul>
+                            </div>
+                            ` : ''}
+
+                            <div class="mt-8 flex items-center space-x-4">
+                                <input type="number" value="1" class="border rounded-md w-20 p-2 text-center">
+                                <button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 flex-grow">
+                                    TAMBAH KE KERANJANG
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -385,16 +236,13 @@
         
         // Inisialisasi Aplikasi
         document.addEventListener('DOMContentLoaded', () => {
-            createDots();
-            showSlide(0);
-            resetInterval();
+            // Logika slider dinonaktifkan sementara untuk fokus ke produk
+            // createDots();
+            // showSlide(0);
+            // resetInterval();
             navigateTo('home-page');
         });
 
     </script>
 </body>
 </html>
-<<<<<<< HEAD
-
-=======
->>>>>>> 35f7b7309635123a5782ad6b609d705e1b514018
