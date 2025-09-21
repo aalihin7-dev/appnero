@@ -73,18 +73,18 @@
         <div class="bg-gray-100 text-gray-600 text-sm py-2 px-6">
             <div class="container mx-auto flex justify-between items-center">
                 <div>
-                    <span>nerostore</span> | <span>Hubungi kami: 0725-8001232</span>
+                    <span>nerostore</span> | <span>Hubungi kami: 6282177576869</span>
                 </div>
                 <div class="relative group">
-                    <a href="#" class="hover:text-purple-600 flex items-center">
+                    <a href="#" class="nav-link hover:text-purple-600 flex items-center" data-target="akun-page">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                           <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                         </svg>
                         Akun Saya ▼
                     </a>
                     <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Login</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Daftar Akun</a>
+                        <a href="#login" class="nav-link block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-target="akun-page">Login</a>
+                        <a href="#daftar" class="nav-link block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-target="akun-page">Daftar Akun</a>
                     </div>
                 </div>
             </div>
@@ -92,22 +92,15 @@
 
         <!-- Main Navigation -->
         <nav class="container mx-auto flex items-center justify-between p-4">
-            <!-- Logo -->
-            <a href="/" title="Nero Printing — Beranda" style="display:inline-block; line-height:0;">
-  <img
-    src="https://cloud.neroprinting.my.id/index.php/s/J2o4DFZPw8kA7sR/download"
-    alt="Logo Nero"
-    id="site-logo"
-    style="max-height:64px; width:auto; display:block;"
-  />
-</a>
-
+            <a href="#home" class="nav-link flex items-center space-x-2" data-target="home-page">
+                <span class="text-xl font-bold text-gray-800 bg-gray-200 px-3 py-1 rounded">ATK</span>
+            </a>
             
             <div class="hidden md:flex items-center space-x-6">
-                <a href="https://neroprinting.my.id" class="nav-link text-gray-600 hover:text-purple-600 font-medium">HOME</a>
-                <a href="#produk" class="nav-link text-gray-600 hover:text-purple-600 font-medium">PRODUK</a>
-                <a href="#blog" class="nav-link text-gray-600 hover:text-purple-600 font-medium">BLOG</a>
-                <a href="#kontak" class="nav-link text-gray-600 hover:text-purple-600 font-medium">KONTAK</a>
+                <a href="#home" class="nav-link text-gray-600 hover:text-purple-600 font-medium" data-target="home-page">HOME</a>
+                <a href="#produk" class="nav-link text-gray-600 hover:text-purple-600 font-medium" data-target="produk-page">PRODUK</a>
+                <a href="#blog" class="nav-link text-gray-600 hover:text-purple-600 font-medium" data-target="blog-page">BLOG</a>
+                <a href="#kontak" class="nav-link text-gray-600 hover:text-purple-600 font-medium" data-target="kontak-page">KONTAK</a>
             </div>
 
             <div class="flex items-center space-x-4">
@@ -115,16 +108,14 @@
                     <input type="text" placeholder="Cari Produk..." class="border rounded-full py-2 px-4 w-40 focus:outline-none focus:ring-2 focus:ring-purple-400">
                 </div>
                 <button class="bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-purple-700 hidden sm:block">CARI</button>
-                <a href="#keranjang" class="relative nav-link">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
+                <a href="#keranjang" class="relative nav-link" data-target="keranjang-page">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                     <span id="cart-count" class="absolute -top-2 -right-2 bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
                 </a>
             </div>
             
             <div class="md:hidden">
-                <button id="mobile-menu-button">
+                <button>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
                     </svg>
@@ -195,7 +186,7 @@
                 <section class="w-full md:w-3/4">
                     <div class="flex justify-between items-center mb-4 border-b pb-2">
                         <p class="text-gray-600">Menampilkan <span id="product-count">0</span> Produk</p>
-                        <div>{...}</div>
+                        <!-- Sorting dropdown placeholder -->
                     </div>
                     <div id="all-products-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                         <!-- Daftar produk akan dimuat di sini -->
@@ -207,9 +198,51 @@
         <!-- HALAMAN 3: DETAIL PRODUK -->
         <div id="detail-produk-page" class="page">
             <div class="container mx-auto py-12 px-4">
-                 <p class="mb-4"><a href="#produk" class="nav-link text-purple-600 hover:underline"> &larr; Kembali ke Produk</a></p>
+                 <p class="mb-4"><a href="#produk" class="nav-link text-purple-600 hover:underline" data-target="produk-page"> &larr; Kembali ke Produk</a></p>
                 <div id="product-detail-content" class="bg-white p-8 rounded-lg shadow-lg flex flex-col md:flex-row gap-8">
                     <!-- Konten detail produk akan dimuat di sini -->
+                </div>
+            </div>
+        </div>
+
+        <!-- HALAMAN 4: AKUN (LOGIN/DAFTAR) -->
+        <div id="akun-page" class="page">
+            <div class="container mx-auto py-16 px-4 flex justify-center">
+                <div class="w-full max-w-md">
+                    <div class="bg-white p-8 rounded-lg shadow-lg">
+                        <h2 class="text-2xl font-bold text-center mb-6">Akun Saya</h2>
+                        <!-- Form Login -->
+                        <form id="login-form">
+                             <h3 class="text-xl font-semibold mb-4">Login</h3>
+                             <div class="mb-4">
+                                <label for="login-email" class="block text-gray-700">Email</label>
+                                <input type="email" id="login-email" class="w-full border rounded-md p-2 mt-1">
+                             </div>
+                             <div class="mb-4">
+                                <label for="login-password" class="block text-gray-700">Password</label>
+                                <input type="password" id="login-password" class="w-full border rounded-md p-2 mt-1">
+                             </div>
+                             <button type="submit" class="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700">Login</button>
+                        </form>
+                        <hr class="my-8">
+                        <!-- Form Daftar Akun -->
+                        <form id="register-form">
+                            <h3 class="text-xl font-semibold mb-4">Daftar Akun Baru</h3>
+                             <div class="mb-4">
+                                <label for="register-name" class="block text-gray-700">Nama Lengkap</label>
+                                <input type="text" id="register-name" class="w-full border rounded-md p-2 mt-1">
+                             </div>
+                             <div class="mb-4">
+                                <label for="register-email" class="block text-gray-700">Email</label>
+                                <input type="email" id="register-email" class="w-full border rounded-md p-2 mt-1">
+                             </div>
+                             <div class="mb-4">
+                                <label for="register-password" class="block text-gray-700">Password</label>
+                                <input type="password" id="register-password" class="w-full border rounded-md p-2 mt-1">
+                             </div>
+                             <button type="submit" class="w-full bg-gray-600 text-white py-2 rounded-md hover:bg-gray-700">Daftar</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -218,7 +251,7 @@
     
     <!-- Floating Action Buttons -->
     <div class="fixed bottom-4 right-4 flex flex-col space-y-3 z-40">
-        <button class="bg-purple-600 text-white h-12 w-12 rounded-full flex items-center justify-center shadow-lg hover:bg-purple-700">
+       <button class="bg-purple-600 text-white h-12 w-12 rounded-full flex items-center justify-center shadow-lg hover:bg-purple-700">
              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
         </button>
         <button class="bg-pink-500 text-white h-12 w-12 rounded-full flex items-center justify-center shadow-lg hover:bg-pink-600">
@@ -233,11 +266,21 @@
         const navLinks = document.querySelectorAll('.nav-link');
 
         function navigateTo(pageId) {
-            pages.forEach(page => {
-                page.classList.toggle('active', page.id === pageId);
-            });
+            // Sembunyikan semua halaman
+            pages.forEach(page => page.classList.remove('active'));
+            
+            // Tampilkan halaman yang dituju
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+            } else {
+                // Jika tidak ditemukan, kembali ke home
+                document.getElementById('home-page').classList.add('active');
+            }
+            
             window.scrollTo(0, 0);
-             // Muat data jika navigasi ke halaman produk
+
+            // Muat data yang relevan untuk halaman tersebut
             if (pageId === 'produk-page') {
                 loadAllProducts();
             }
@@ -246,45 +289,20 @@
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const targetPage = link.dataset.target || link.getAttribute('href').substring(1) + '-page';
-                navigateTo(targetPage);
+                const targetPageId = link.dataset.target || link.getAttribute('href').substring(1) + '-page';
+                navigateTo(targetPageId);
             });
         });
         
-        // --- LOGIKA SLIDER (Sama seperti sebelumnya) ---
+        // --- LOGIKA SLIDER ---
         const slides = document.querySelectorAll('.slide');
         const dotsContainer = document.querySelector('.slider-dots');
         let currentSlide = 0;
         let slideInterval;
-        function createDots() {
-            if (!dotsContainer) return;
-            dotsContainer.innerHTML = '';
-            slides.forEach((_, i) => {
-                const dot = document.createElement('div');
-                dot.classList.add('dot');
-                if (i === 0) dot.classList.add('active');
-                dot.addEventListener('click', () => {
-                    showSlide(i);
-                    resetInterval();
-                });
-                dotsContainer.appendChild(dot);
-            });
-        }
-        function showSlide(n) {
-            if (slides.length === 0) return;
-            slides.forEach((slide, i) => {
-                slide.classList.remove('active');
-                if(dotsContainer.children[i]) dotsContainer.children[i].classList.remove('active');
-            });
-            currentSlide = (n + slides.length) % slides.length;
-            slides[currentSlide].classList.add('active');
-            if(dotsContainer.children[currentSlide]) dotsContainer.children[currentSlide].classList.add('active');
-        }
+        function createDots(){ if (!dotsContainer) return; dotsContainer.innerHTML = ''; slides.forEach((_, i) => { const dot = document.createElement('div'); dot.classList.add('dot'); if (i === 0) dot.classList.add('active'); dot.addEventListener('click', () => { showSlide(i); resetInterval(); }); dotsContainer.appendChild(dot); }); }
+        function showSlide(n){ if (slides.length === 0) return; slides.forEach((slide, i) => { slide.classList.remove('active'); if(dotsContainer && dotsContainer.children[i]) dotsContainer.children[i].classList.remove('active'); }); currentSlide = (n + slides.length) % slides.length; slides[currentSlide].classList.add('active'); if(dotsContainer && dotsContainer.children[currentSlide]) dotsContainer.children[currentSlide].classList.add('active'); }
         function nextSlide() { showSlide(currentSlide + 1); }
-        function resetInterval() {
-            clearInterval(slideInterval);
-            slideInterval = setInterval(nextSlide, 5000);
-        }
+        function resetInterval() { clearInterval(slideInterval); slideInterval = setInterval(nextSlide, 5000); }
 
         // --- LOGIKA PRODUK ---
         const allProductsContainer = document.getElementById('all-products-container');
@@ -292,8 +310,7 @@
 
         async function fetchProducts() {
             try {
-                // Gunakan URL absolut untuk memastikan browser tidak bingung
-                const response = await fetch('https://api.neroprinting.my.id/price-list');
+                const response = await fetch(`https://api.neroprinting.my.id/price-list`);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 return await response.json();
             } catch (error) {
@@ -377,3 +394,4 @@
     </script>
 </body>
 </html>
+
