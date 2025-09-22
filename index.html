@@ -8,14 +8,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
     <script src="https://unpkg.com/navigo@8.11.1/lib/navigo.min.js"></script>
-
     <style>
         body { font-family: 'Poppins', sans-serif; }
         .page { display: none; }
         .page.active { display: block; }
-        /* CSS lain tetap sama */
         .slider-container { position: relative; width: 100%; height: 85vh; overflow: hidden; }
         .slide { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 1s ease-in-out; }
         .slide.active { opacity: 1; }
@@ -60,10 +57,18 @@
         </div>
 
         <div id="produk-page" class="page">
-              <div class="container mx-auto py-8 px-4">
-                <h2 class="text-3xl font-bold text-center mb-8">Produk Kami</h2>
-                <div id="all-products-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                </div>
+              <div class="container mx-auto py-8 px-4 flex flex-col md:flex-row gap-8">
+                  <aside class="w-full md:w-1/4">
+                      <h3 class="font-bold text-lg mb-4 border-b pb-2">FILTER KATEGORI</h3>
+                      <ul id="category-filter-container" class="space-y-2">
+                          </ul>
+                  </aside>
+
+                  <section class="w-full md:w-3/4">
+                    <h2 class="text-3xl font-bold text-center mb-8 md:text-left">Produk Kami</h2>
+                    <div id="all-products-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+                  </section>
               </div>
         </div>
 
@@ -79,27 +84,21 @@
     
     <script>
         const pages = document.querySelectorAll('.page');
-        
-        // --- PERUBAHAN 3: Inisialisasi Router Navigo ---
         const router = new Navigo("/", { strategy: 'HASH', hash: '#' });
 
-        // Fungsi `MapsTo` tetap sama, tapi sekarang akan dipanggil oleh router
         function navigateTo(pageId) {
             pages.forEach(page => page.classList.remove('active'));
             const targetPage = document.getElementById(pageId);
-            if (targetPage) {
-                targetPage.classList.add('active');
-            } else {
-                document.getElementById('home-page').classList.add('active');
-            }
+            if (targetPage) { targetPage.classList.add('active'); } 
+            else { document.getElementById('home-page').classList.add('active'); }
             window.scrollTo(0, 0);
         }
 
-        // --- LOGIKA PRODUK (tetap sama) ---
         const STRAPI_API_URL = 'https://cms.neroprinting.my.id';
         const STRAPI_BASE_URL = 'https://cms.neroprinting.my.id';
         const allProductsContainer = document.getElementById('all-products-container');
         const productDetailContent = document.getElementById('product-detail-content');
+        const categoryFilterContainer = document.getElementById('category-filter-container');
         
         function getStrapiMediaUrl(mediaObject, size = 'small') {
             const placeholder = 'https://via.placeholder.com/400x400.png?text=Gambar+Tidak+Tersedia';
@@ -108,9 +107,10 @@
             return url.startsWith('http') ? url : `${STRAPI_BASE_URL}${url}`;
         }
 
-        async function fetchProducts() {
+        // --- PERUBAHAN 2: Fungsi `fetchProducts` diupdate untuk menerima parameter filter ---
+        async function fetchProducts(filterQuery = "") {
             try {
-                const response = await fetch(`${STRAPI_API_URL}/produks`);
+                const response = await fetch(`${STRAPI_API_URL}/produks${filterQuery}`);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 return await response.json();
             } catch (error) {
@@ -119,14 +119,40 @@
             }
         }
 
-        async function loadAllProducts() {
+        // --- FUNGSI BARU: Untuk mengambil data kategori dari Strapi ---
+        async function fetchCategories() {
+            try {
+                const response = await fetch(`${STRAPI_API_URL}/kategoris`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error("Gagal mengambil data kategori:", error);
+                return [];
+            }
+        }
+        
+        // --- FUNGSI BARU: Untuk membangun menu filter kategori secara dinamis ---
+        async function renderCategoryFilters() {
+            const categories = await fetchCategories();
+            categoryFilterContainer.innerHTML = `
+                <li><a href="/produk" data-navigo class="text-gray-700 hover:text-purple-600 font-semibold">Semua Kategori</a></li>
+                ${categories.map(cat => `
+                    <li><a href="/produk/kategori/${cat.id}" data-navigo class="text-gray-600 hover:text-purple-600">${cat.nama_kategori}</a></li>
+                `).join('')}
+            `;
+            router.updatePageLinks(); // Penting! Memberitahu router bahwa ada link baru
+        }
+
+
+        async function loadAllProducts(filterQuery = "") {
             allProductsContainer.innerHTML = `<p class="text-center col-span-full">Memuat produk...</p>`;
-            const products = await fetchProducts();
+            const products = await fetchProducts(filterQuery);
+            
             if (!products || products.length === 0) {
-                allProductsContainer.innerHTML = `<p class="text-center col-span-full">Belum ada produk.</p>`;
+                allProductsContainer.innerHTML = `<p class="text-center col-span-full">Tidak ada produk yang ditemukan.</p>`;
                 return;
             }
-            // --- PERUBAHAN 4: Kartu produk sekarang dibungkus link <a> ---
+            
             allProductsContainer.innerHTML = products.map(product => {
                 const p = product;
                 const imageUrl = getStrapiMediaUrl(p.gambar, 'small');
@@ -148,6 +174,7 @@
         }
 
         async function showProductDetail(productId) {
+            // ... (Fungsi ini tetap sama, tidak ada perubahan)
             navigateTo('detail-produk-page');
             productDetailContent.innerHTML = `<p class="text-center text-lg">Memuat detail produk...</p>`;
             try {
@@ -157,45 +184,35 @@
                 const p = product;
                 const imageUrl = getStrapiMediaUrl(p.gambar, 'medium');
                 const kategori = p.kategori?.nama_kategori || 'Tanpa Kategori';
-
-                productDetailContent.innerHTML = `
-                    <div class="flex flex-col md:flex-row gap-8">
-                        <div class="w-full md:w-1/2">
-                            <img src="${imageUrl}" alt="${p.nama_produk}" class="w-full h-auto object-cover rounded-lg shadow-md">
-                        </div>
-                        <div class="w-full md:w-1/2">
-                            <span class="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-full">${kategori}</span>
-                            <h2 class="text-4xl font-bold mt-2">${p.nama_produk}</h2>
-                            <p class="text-lg text-gray-500 mt-1 mb-4">${p.kode_item}</p>
-                            <p class="text-3xl text-purple-600 font-bold my-4">Rp ${p.harga.toLocaleString('id-ID')}</p>
-                            <div class="prose mt-6">${p.deskripsi}</div>
-                            ${ p.daftar_varian && p.daftar_varian.length > 0 ? `<div class="mt-6"><h4 class="font-semibold text-lg">Varian Tersedia:</h4><ul class="list-disc list-inside mt-2 text-gray-700">${p.daftar_varian.map(v => `<li>${v.atribut}: ${v.nilai} (Stok: ${v.stok})</li>`).join('')}</ul></div>` : ''}
-                            ${ p.daftar_harga && p.daftar_harga.length > 0 ? `<div class="mt-6"><h4 class="font-semibold text-lg">Harga Grosir:</h4><ul class="list-disc list-inside mt-2 text-gray-700">${p.daftar_harga.map(h => `<li>Min. ${h.jumlah_minimum} pcs: Rp ${h.harga_satuan.toLocaleString('id-ID')} / pcs</li>`).join('')}</ul></div>` : ''}
-                            <div class="mt-8 flex items-center space-x-4"><input type="number" value="1" class="border rounded-md w-20 p-2 text-center"><button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 flex-grow">TAMBAH KE KERANJANG</button></div>
-                        </div>
-                    </div>
-                `;
+                productDetailContent.innerHTML = `<div class="flex flex-col md:flex-row gap-8"><div class="w-full md:w-1/2"><img src="${imageUrl}" alt="${p.nama_produk}" class="w-full h-auto object-cover rounded-lg shadow-md"></div><div class="w-full md:w-1/2"><span class="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-full">${kategori}</span><h2 class="text-4xl font-bold mt-2">${p.nama_produk}</h2><p class="text-lg text-gray-500 mt-1 mb-4">${p.kode_item}</p><p class="text-3xl text-purple-600 font-bold my-4">Rp ${p.harga.toLocaleString('id-ID')}</p><div class="prose mt-6">${p.deskripsi}</div>${ p.daftar_varian && p.daftar_varian.length > 0 ? `<div class="mt-6"><h4 class="font-semibold text-lg">Varian Tersedia:</h4><ul class="list-disc list-inside mt-2 text-gray-700">${p.daftar_varian.map(v => `<li>${v.atribut}: ${v.nilai} (Stok: ${v.stok})</li>`).join('')}</ul></div>` : ''}${ p.daftar_harga && p.daftar_harga.length > 0 ? `<div class="mt-6"><h4 class="font-semibold text-lg">Harga Grosir:</h4><ul class="list-disc list-inside mt-2 text-gray-700">${p.daftar_harga.map(h => `<li>Min. ${h.jumlah_minimum} pcs: Rp ${h.harga_satuan.toLocaleString('id-ID')} / pcs</li>`).join('')}</ul></div>` : ''}<div class="mt-8 flex items-center space-x-4"><input type="number" value="1" class="border rounded-md w-20 p-2 text-center"><button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 flex-grow">TAMBAH KE KERANJANG</button></div></div></div>`;
             } catch (error) {
                 productDetailContent.innerHTML = `<p class="text-red-500">${error.message}</p>`;
             }
         }
         
-        // --- PERUBAHAN 5: Mendefinisikan Rute dan Mengaktifkan Router ---
+        // --- PERUBAHAN 3: Mendefinisikan rute baru untuk filter kategori ---
         router
             .on('/', () => {
                 navigateTo('home-page');
             })
             .on('/produk', () => {
                 navigateTo('produk-page');
-                loadAllProducts(); 
+                renderCategoryFilters(); // Membangun menu filter
+                loadAllProducts(); // Memuat semua produk
+            })
+            .on('/produk/kategori/:id', (match) => {
+                const categoryId = match.data.id;
+                navigateTo('produk-page');
+                renderCategoryFilters(); // Membangun menu filter
+                loadAllProducts(`?kategori.id=${categoryId}`); // Memuat produk berdasarkan filter
             })
             .on('/produk/:id', (match) => {
                 showProductDetail(match.data.id);
             })
             .notFound(() => {
-                navigateTo('home-page'); // Jika URL tidak ditemukan, kembali ke home
+                navigateTo('home-page');
             })
-            .resolve(); // Perintah ini memulai router
+            .resolve();
 
     </script>
 </body>
