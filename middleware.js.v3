@@ -1,0 +1,19 @@
+module.exports = {
+  settings: {
+    cors: {
+      enabled: true,
+      origin: [
+        'http://localhost:1337',
+        'https://app.neroprinting.my.id',
+        'https://cms.neroprinting.my.id', // <-- INI YANG DITAMBAHKAN
+      ],
+    },
+    session: {
+      enabled: true,
+      client: 'cookie',
+      key: 'strapi.sid',
+      prefix: 'strapi:sess:',
+      secure: false,
+    },
+  },
+};
