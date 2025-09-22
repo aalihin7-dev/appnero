@@ -8,32 +8,33 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/navigo@8.11.1/lib/navigo.min.js"></script>
+
     <style>
         body { font-family: 'Poppins', sans-serif; }
+        .page { display: none; }
+        .page.active { display: block; }
+        /* CSS lain tetap sama */
         .slider-container { position: relative; width: 100%; height: 85vh; overflow: hidden; }
         .slide { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 1s ease-in-out; }
         .slide.active { opacity: 1; }
         .slide img { width: 100%; height: 100%; object-fit: cover; }
-        .slider-dots { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.5); cursor: pointer; transition: background-color 0.3s; }
-        .dot.active { background-color: white; }
-        .page { display: none; }
-        .page.active { display: block; }
     </style>
 </head>
 <body class="bg-gray-100">
 
     <header class="bg-white shadow-md sticky top-0 z-50">
         <nav class="container mx-auto flex items-center justify-between p-4">
-            <a href="#home" class="nav-link flex items-center space-x-2" data-target="home-page">
+            <a href="/" data-navigo class="flex items-center space-x-2">
                 <span class="text-xl font-bold text-gray-800">NERO STORE</span>
             </a>
             <div class="hidden md:flex items-center space-x-6">
-                <a href="#home" class="nav-link text-gray-600 hover:text-purple-600 font-medium" data-target="home-page">HOME</a>
-                <a href="#produk" class="nav-link text-gray-600 hover:text-purple-600 font-medium" data-target="produk-page">PRODUK</a>
+                <a href="/" data-navigo class="text-gray-600 hover:text-purple-600 font-medium">HOME</a>
+                <a href="/produk" data-navigo class="text-gray-600 hover:text-purple-600 font-medium">PRODUK</a>
             </div>
             <div class="flex items-center space-x-4">
-                <a href="#keranjang" class="relative nav-link" data-target="keranjang-page">
+                <a href="/keranjang" data-navigo class="relative">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                     <span id="cart-count" class="absolute -top-2 -right-2 bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
                 </a>
@@ -42,17 +43,16 @@
     </header>
 
     <main>
-        
         <div id="home-page" class="page">
-            <section class="slider-container">
+             <section class="slider-container">
                 <div class="slide active">
-                    <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=2084&auto=format&fit=crop" alt="Office Stationery">
+                    <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=2084&auto.format&fit=crop" alt="Office Stationery">
                     <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
                         <div class="text-center text-white p-4">
                             <h1 class="text-4xl md:text-6xl font-bold my-4">SOLUSI KEBUTUHAN KANTOR & PERCETAKAN</h1>
-                            <button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 transition duration-300 nav-link" data-target="produk-page">
+                            <a href="/produk" data-navigo class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 transition duration-300">
                                 LIHAT PRODUK
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -63,175 +63,140 @@
               <div class="container mx-auto py-8 px-4">
                 <h2 class="text-3xl font-bold text-center mb-8">Produk Kami</h2>
                 <div id="all-products-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                    </div>
+                </div>
               </div>
         </div>
 
         <div id="detail-produk-page" class="page">
             <div class="container mx-auto py-12 px-4">
-                 <p class="mb-4"><a href="#produk" class="nav-link text-purple-600 hover:underline" data-target="produk-page"> &larr; Kembali ke Produk</a></p>
+                 <p class="mb-4"><a href="/produk" data-navigo class="text-purple-600 hover:underline"> &larr; Kembali ke Produk</a></p>
                 <div id="product-detail-content" class="bg-white p-8 rounded-lg shadow-lg">
-                    </div>
+                </div>
             </div>
         </div>
         
     </main>
     
     <script>
-    // --- LOGIKA SPA (Single Page Application) & ROUTING ---
-    const pages = document.querySelectorAll('.page');
-    const navLinks = document.querySelectorAll('.nav-link');
-
-    function navigateTo(pageId) {
-        pages.forEach(page => page.classList.remove('active'));
-        const targetPage = document.getElementById(pageId);
-        if (targetPage) {
-            targetPage.classList.add('active');
-        } else {
-            document.getElementById('home-page').classList.add('active');
-        }
-        window.scrollTo(0, 0);
-        if (pageId === 'produk-page') {
-            loadAllProducts();
-        }
-    }
-
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetPageId = link.dataset.target;
-            navigateTo(targetPageId);
-        });
-    });
-
-    // --- LOGIKA PRODUK ---
-
-    const STRAPI_API_URL = 'https://cms.neroprinting.my.id';
-    const STRAPI_BASE_URL = 'https://cms.neroprinting.my.id';
-
-    const allProductsContainer = document.getElementById('all-products-container');
-    const productDetailContent = document.getElementById('product-detail-content');
-    
-    // --- Fungsi bantuan untuk mendapatkan URL gambar dari Strapi v3 ---
-    function getStrapiMediaUrl(mediaObject, size = 'small') {
-        const placeholder = 'https://via.placeholder.com/400x400.png?text=Gambar+Tidak+Tersedia';
-        if (!mediaObject) {
-            return placeholder;
-        }
-        const url = mediaObject.formats?.[size]?.url || mediaObject.url;
-        return url.startsWith('http') ? url : `${STRAPI_BASE_URL}${url}`;
-    }
-
-
-    async function fetchProducts() {
-        try {
-            const response = await fetch(`${STRAPI_API_URL}/produks`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            return await response.json();
-        } catch (error) {
-            console.error("Gagal mengambil data produk:", error);
-            return [];
-        }
-    }
-
-    async function loadAllProducts() {
-        allProductsContainer.innerHTML = `<p class="text-center col-span-full">Memuat produk...</p>`;
-        const products = await fetchProducts();
+        const pages = document.querySelectorAll('.page');
         
-        if (!products || products.length === 0) {
-            allProductsContainer.innerHTML = `<p class="text-center col-span-full">Belum ada produk.</p>`;
-            return;
+        // --- PERUBAHAN 3: Inisialisasi Router Navigo ---
+        const router = new Navigo("/", { strategy: 'HASH', hash: '#' });
+
+        // Fungsi `MapsTo` tetap sama, tapi sekarang akan dipanggil oleh router
+        function navigateTo(pageId) {
+            pages.forEach(page => page.classList.remove('active'));
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+            } else {
+                document.getElementById('home-page').classList.add('active');
+            }
+            window.scrollTo(0, 0);
+        }
+
+        // --- LOGIKA PRODUK (tetap sama) ---
+        const STRAPI_API_URL = 'https://cms.neroprinting.my.id';
+        const STRAPI_BASE_URL = 'https://cms.neroprinting.my.id';
+        const allProductsContainer = document.getElementById('all-products-container');
+        const productDetailContent = document.getElementById('product-detail-content');
+        
+        function getStrapiMediaUrl(mediaObject, size = 'small') {
+            const placeholder = 'https://via.placeholder.com/400x400.png?text=Gambar+Tidak+Tersedia';
+            if (!mediaObject) return placeholder;
+            const url = mediaObject.formats?.[size]?.url || mediaObject.url;
+            return url.startsWith('http') ? url : `${STRAPI_BASE_URL}${url}`;
+        }
+
+        async function fetchProducts() {
+            try {
+                const response = await fetch(`${STRAPI_API_URL}/produks`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error("Gagal mengambil data produk:", error);
+                return [];
+            }
+        }
+
+        async function loadAllProducts() {
+            allProductsContainer.innerHTML = `<p class="text-center col-span-full">Memuat produk...</p>`;
+            const products = await fetchProducts();
+            if (!products || products.length === 0) {
+                allProductsContainer.innerHTML = `<p class="text-center col-span-full">Belum ada produk.</p>`;
+                return;
+            }
+            // --- PERUBAHAN 4: Kartu produk sekarang dibungkus link <a> ---
+            allProductsContainer.innerHTML = products.map(product => {
+                const p = product;
+                const imageUrl = getStrapiMediaUrl(p.gambar, 'small');
+                const kategori = p.kategori?.nama_kategori || 'Tanpa Kategori';
+                return `
+                    <a href="/produk/${p.id}" data-navigo class="block bg-white rounded-lg shadow-md overflow-hidden group transition-transform duration-300 hover:scale-105">
+                        <div class="h-48 w-full overflow-hidden">
+                             <img src="${imageUrl}" alt="${p.nama_produk}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="p-4">
+                            <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">${kategori}</span>
+                            <h3 class="font-semibold truncate mt-2 text-lg">${p.nama_produk}</h3>
+                            <p class="text-sm text-gray-500">${p.kode_item}</p>
+                            <p class="text-purple-600 font-bold mt-2">Rp ${p.harga.toLocaleString('id-ID')}</p>
+                        </div>
+                    </a>
+                `
+            }).join('');
+        }
+
+        async function showProductDetail(productId) {
+            navigateTo('detail-produk-page');
+            productDetailContent.innerHTML = `<p class="text-center text-lg">Memuat detail produk...</p>`;
+            try {
+                const response = await fetch(`${STRAPI_API_URL}/produks/${productId}`);
+                if (!response.ok) throw new Error('Produk tidak ditemukan');
+                const product = await response.json();
+                const p = product;
+                const imageUrl = getStrapiMediaUrl(p.gambar, 'medium');
+                const kategori = p.kategori?.nama_kategori || 'Tanpa Kategori';
+
+                productDetailContent.innerHTML = `
+                    <div class="flex flex-col md:flex-row gap-8">
+                        <div class="w-full md:w-1/2">
+                            <img src="${imageUrl}" alt="${p.nama_produk}" class="w-full h-auto object-cover rounded-lg shadow-md">
+                        </div>
+                        <div class="w-full md:w-1/2">
+                            <span class="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-full">${kategori}</span>
+                            <h2 class="text-4xl font-bold mt-2">${p.nama_produk}</h2>
+                            <p class="text-lg text-gray-500 mt-1 mb-4">${p.kode_item}</p>
+                            <p class="text-3xl text-purple-600 font-bold my-4">Rp ${p.harga.toLocaleString('id-ID')}</p>
+                            <div class="prose mt-6">${p.deskripsi}</div>
+                            ${ p.daftar_varian && p.daftar_varian.length > 0 ? `<div class="mt-6"><h4 class="font-semibold text-lg">Varian Tersedia:</h4><ul class="list-disc list-inside mt-2 text-gray-700">${p.daftar_varian.map(v => `<li>${v.atribut}: ${v.nilai} (Stok: ${v.stok})</li>`).join('')}</ul></div>` : ''}
+                            ${ p.daftar_harga && p.daftar_harga.length > 0 ? `<div class="mt-6"><h4 class="font-semibold text-lg">Harga Grosir:</h4><ul class="list-disc list-inside mt-2 text-gray-700">${p.daftar_harga.map(h => `<li>Min. ${h.jumlah_minimum} pcs: Rp ${h.harga_satuan.toLocaleString('id-ID')} / pcs</li>`).join('')}</ul></div>` : ''}
+                            <div class="mt-8 flex items-center space-x-4"><input type="number" value="1" class="border rounded-md w-20 p-2 text-center"><button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 flex-grow">TAMBAH KE KERANJANG</button></div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                productDetailContent.innerHTML = `<p class="text-red-500">${error.message}</p>`;
+            }
         }
         
-        // --- PERBAIKAN: Hapus `.attributes` saat mengakses data ---
-        allProductsContainer.innerHTML = products.map(product => {
-            const p = product; // Langsung gunakan objek produk
-            const imageUrl = getStrapiMediaUrl(p.gambar, 'small');
-            const kategori = p.kategori?.nama_kategori || 'Tanpa Kategori';
+        // --- PERUBAHAN 5: Mendefinisikan Rute dan Mengaktifkan Router ---
+        router
+            .on('/', () => {
+                navigateTo('home-page');
+            })
+            .on('/produk', () => {
+                navigateTo('produk-page');
+                loadAllProducts(); 
+            })
+            .on('/produk/:id', (match) => {
+                showProductDetail(match.data.id);
+            })
+            .notFound(() => {
+                navigateTo('home-page'); // Jika URL tidak ditemukan, kembali ke home
+            })
+            .resolve(); // Perintah ini memulai router
 
-            return `
-                <div class="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer group transition-transform duration-300 hover:scale-105" onclick="showProductDetail(${p.id})">
-                    <div class="h-48 w-full overflow-hidden">
-                         <img src="${imageUrl}" alt="${p.nama_produk}" class="w-full h-full object-cover">
-                    </div>
-                    <div class="p-4">
-                        <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">${kategori}</span>
-                        <h3 class="font-semibold truncate mt-2 text-lg">${p.nama_produk}</h3>
-                        <p class="text-sm text-gray-500">${p.kode_item}</p>
-                        <p class="text-purple-600 font-bold mt-2">Rp ${p.harga.toLocaleString('id-ID')}</p>
-                    </div>
-                </div>
-            `
-        }).join('');
-    }
-
-    async function showProductDetail(productId) {
-        productDetailContent.innerHTML = `<p class="text-center text-lg">Memuat detail produk...</p>`;
-        navigateTo('detail-produk-page');
-        
-        try {
-            const response = await fetch(`${STRAPI_API_URL}/produks/${productId}`);
-            if (!response.ok) throw new Error('Produk tidak ditemukan');
-            
-            const product = await response.json();
-            
-            // --- PERBAIKAN: Hapus `.attributes` saat mengakses data ---
-            const p = product; // Langsung gunakan objek produk
-            const imageUrl = getStrapiMediaUrl(p.gambar, 'medium');
-            const kategori = p.kategori?.nama_kategori || 'Tanpa Kategori';
-
-            productDetailContent.innerHTML = `
-                <div class="flex flex-col md:flex-row gap-8">
-                    <div class="w-full md:w-1/2">
-                        <img src="${imageUrl}" alt="${p.nama_produk}" class="w-full h-auto object-cover rounded-lg shadow-md">
-                    </div>
-                    <div class="w-full md:w-1/2">
-                        <span class="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-full">${kategori}</span>
-                        <h2 class="text-4xl font-bold mt-2">${p.nama_produk}</h2>
-                        <p class="text-lg text-gray-500 mt-1 mb-4">${p.kode_item}</p>
-                        
-                        <p class="text-3xl text-purple-600 font-bold my-4">Rp ${p.harga.toLocaleString('id-ID')}</p>
-                        
-                        <div class="prose mt-6">
-                            ${p.deskripsi}
-                        </div>
-                        
-                        ${ p.daftar_varian && p.daftar_varian.length > 0 ? `
-                        <div class="mt-6">
-                            <h4 class="font-semibold text-lg">Varian Tersedia:</h4>
-                            <ul class="list-disc list-inside mt-2 text-gray-700">
-                                ${p.daftar_varian.map(v => `<li>${v.atribut}: ${v.nilai} (Stok: ${v.stok})</li>`).join('')}
-                            </ul>
-                        </div>
-                        ` : ''}
-
-                        ${ p.daftar_harga && p.daftar_harga.length > 0 ? `
-                        <div class="mt-6">
-                            <h4 class="font-semibold text-lg">Harga Grosir:</h4>
-                            <ul class="list-disc list-inside mt-2 text-gray-700">
-                                 ${p.daftar_harga.map(h => `<li>Min. ${h.jumlah_minimum} pcs: Rp ${h.harga_satuan.toLocaleString('id-ID')} / pcs</li>`).join('')}
-                            </ul>
-                        </div>
-                        ` : ''}
-
-                        <div class="mt-8 flex items-center space-x-4">
-                            <input type="number" value="1" class="border rounded-md w-20 p-2 text-center">
-                            <button class="bg-purple-600 text-white font-semibold py-3 px-8 rounded-md hover:bg-purple-700 flex-grow">
-                                TAMBAH KE KERANJANG
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        } catch (error) {
-            productDetailContent.innerHTML = `<p class="text-red-500">${error.message}</p>`;
-        }
-    }
-    
-    // Inisialisasi Aplikasi
-    document.addEventListener('DOMContentLoaded', () => {
-        navigateTo('home-page');
-    });
     </script>
 </body>
 </html>
